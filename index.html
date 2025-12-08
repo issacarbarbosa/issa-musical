@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mestre da Clave V2.5 - Acidentes</title>
+    <style>
+        /* --- CSS GERAL E ESTRUTURA --- */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+
+        body {
+            margin: 0; padding: 0;
+            background-color: #2c3e50;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; touch-action: none;
+            width: 100vw; height: 100vh; color: #333;
+            user-select: none;
+        }
+
+        #rotate-message {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #2c3e50; color: white; z-index: 9999;
+            flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
+        }
+        @media screen and (orientation: portrait) and (max-width: 900px) {
+            #rotate-message { display: flex; }
+            #main-wrapper { display: none !important; }
+        }
+
+        #main-wrapper { display: flex; flex-direction: column; width: 100%; height: 100%; background: radial-gradient(circle, #fdf6e3 0%, #f0e4d0 100%); }
+
+        /* --- ÁREA DO JOGO (CANVAS) --- */
+        #game-area { position: relative; flex: 1; width: 100%; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* --- ÁREA DOS CONTROLES (BOTOES) --- */
+        #controls-container {
+            height: auto; min-height: 100px;
+            background: #34495e;
+            display: flex; flex-direction: column;
+            padding: 10px 5px; gap: 8px;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3); z-index: 20;
+        }
+
+        /* Fileira dos Modificadores (# e b) */
+        #modifiers-row { display: flex; justify-content: center; gap: 15px; margin-bottom: 5px; }
+        .mod-btn {
+            width: 80px; height: 50px;
+            background: #95a5a6; color: white;
+            border: 3px solid transparent; border-radius: 12px;
+            font-size: 2rem; line-height: 1; font-weight: bold;
+            cursor: pointer; transition: all 0.1s;
+            box-shadow: 0 4px 0 #7f8c8d;
+        }
+        .mod-btn:active { transform: translateY(4px); box-shadow: none; }
+        /* Estado Ativo (Selecionado) */
+        .mod-btn.active-sharp { background: #e74c3c; border-color: #c0392b; box-shadow: 0 4px 0 #c0392b; }
+        .mod-btn.active-flat { background: #3498db; border-color: #2980b9; box-shadow: 0 4px 0 #2980b9; }
+
+        /* Fileira das Notas Naturais */
+        #notes-row { display: flex; gap: 5px; height: 60px; }
+        .note-btn {
+            flex: 1; background: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+            border: none; border-radius: 0 0 8px 8px;
+            font-family: 'Poppins', sans-serif; font-weight: bold; font-size: clamp(1rem, 2vw, 1.4rem);
+            color: #2c3e50; cursor: pointer; position: relative;
+            box-shadow: inset 0 -5px 0 rgba(0,0,0,0.1); transition: all 0.1s;
+        }
+        .note-btn:active { background: #95a5a6; transform: translateY(2px); }
+        /* Cores das bordas */
+        .btn-do { border-bottom: 4px solid #e74c3c; } .btn-re { border-bottom: 4px solid #e67e22; }
+        .btn-mi { border-bottom: 4px solid #f1c40f; } .btn-fa { border-bottom: 4px solid #2ecc71; }
+        .btn-sol { border-bottom: 4px solid #3498db; } .btn-la { border-bottom: 4px solid #9b59b6; }
+        .btn-si { border-bottom: 4px solid #34495e; }
+
+        /* --- HUD E OVERLAYS --- */
+        #hud { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; pointer-events: none; z-index: 10; }
+        .hud-pill { background: rgba(255,255,255,0.9); padding: 8px 20px; border-radius: 30px; font-weight: bold; font-size: 1.2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); color: #2c3e50; border: 2px solid #2c3e50; }
+        
+        .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(44, 62, 80, 0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 100; color: white; text-align: center; }
+        .hidden { display: none !important; }
+        h1 { font-size: 3rem; margin: 0 0 10px 0; color: #f1c40f; }
+        p { font-size: 1.2rem; max-width: 600px; margin-bottom: 30px; }
+        .btn-primary { padding: 15px 50px; font-size: 1.5rem; background-color: #27ae60; color: white; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 6px 0 #1e8449; transition: transform 0.1s; }
+        .btn-primary:active { transform: translateY(4px); box-shadow: 0 2px 0 #1e8449; }
+
+        /* Feedback Flutuante Animado */
+        .feedback { position: absolute; font-weight: 900; font-size: 3rem; animation: popUp 0.8s forwards; pointer-events: none; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); z-index: 50; }
+        @keyframes popUp { 0% { transform: scale(0.5) translateY(0); opacity: 0; } 20% { transform: scale(1.2) translateY(-20px); opacity: 1; } 100% { transform: scale(1) translateY(-80px); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div id="rotate-message"><h1>↻</h1><h2>Gire o celular para jogar</h2></div>
+
+    <div id="main-wrapper">
+        <div id="game-area">
+            <canvas id="gameCanvas"></canvas>
+            <div id="hud">
+                <div class="hud-pill">Pontos: <span id="score">0</span></div>
+                <div class="hud-pill">Vidas: <span id="lives">3</span></div>
+            </div>
+
+            <!-- Tela Inicial -->
+            <div id="start-screen" class="overlay">
+                <h1>Mestre da Clave V2.5</h1>
+                <p>Agora com <strong>Sustenidos (♯)</strong> e <strong>Bemóis (♭)</strong>!<br>Para acertar uma nota com acidente, toque no botão do acidente PRIMEIRO, depois na nota.</p>
+                <button class="btn-primary" onclick="startGame()">Começar Desafio</button>
+            </div>
+
+            <!-- Game Over -->
+            <div id="game-over-screen" class="overlay hidden">
+                <h1>Fim de Jogo!</h1>
+                <p>Sua pontuação final: <span id="final-score">0</span></p>
+                <button class="btn-primary" onclick="resetGame()">Tentar Novamente</button>
+            </div>
+        </div>
+
+        <!-- Nova Área de Controles -->
+        <div id="controls-container">
+            <!-- Fileira de Modificadores -->
+            <div id="modifiers-row">
+                <button id="btn-flat" class="mod-btn" onpointerdown="toggleModifier('flat')">♭</button>
+                <button id="btn-sharp" class="mod-btn" onpointerdown="toggleModifier('sharp')">♯</button>
+            </div>
+            <!-- Fileira de Notas -->
+            <div id="notes-row">
+                <button class="note-btn btn-do" onpointerdown="inputNote('Dó')">Dó</button>
+                <button class="note-btn btn-re" onpointerdown="inputNote('Ré')">Ré</button>
+                <button class="note-btn btn-mi" onpointerdown="inputNote('Mi')">Mi</button>
+                <button class="note-btn btn-fa" onpointerdown="inputNote('Fá')">Fá</button>
+                <button class="note-btn btn-sol" onpointerdown="inputNote('Sol')">Sol</button>
+                <button class="note-btn btn-la" onpointerdown="inputNote('Lá')">Lá</button>
+                <button class="note-btn btn-si" onpointerdown="inputNote('Si')">Si</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameArea = document.getElementById('game-area');
+
+        // --- ESTADO DO JOGO ---
+        let gameState = 'MENU';
+        let score = 0;
+        let lives = 3;
+        let gameSpeed = 3.5; // Velocidade inicial
+        let spawnTimer = 0;
+        let spawnInterval = 110; 
+        let notes = [];
+        let animationId;
+
+        // --- ESTADO DOS CONTROLES (Novidade V2.5) ---
+        let activeModifier = null; // 'sharp', 'flat', ou null
+
+        // Dimensões
+        let staffCenterY, lineGap;
+        // Zona de acerto (alvo verde)
+        const hitZone = { start: 120, end: 350 };
+
+        // --- ÁUDIO (Sintetizador Simples) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playFeedback(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            // Som de acerto (agudo, limpo) ou erro (grave, serra)
+            osc.type = type === 'hit' ? 'sine' : 'sawtooth';
+            osc.frequency.setValueAtTime(type === 'hit' ? 880 : 150, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (type==='hit'?0.3:0.5));
+
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+        }
+
+        // --- VISUAIS E LÓGICA ---
+        function resize() {
+            canvas.width = gameArea.clientWidth;
+            canvas.height = gameArea.clientHeight;
+            staffCenterY = canvas.height / 2;
+            lineGap = Math.min(canvas.height / 12, 28); 
+        }
+        window.addEventListener('resize', resize); resize();
+
+        class Note {
+            constructor() {
+                this.x = canvas.width + 50;
+                // Definição: pos 0 = Mi (1ª linha). Range: -3 (Lá grave) a 9 (Sol agudo)
+                const options = [
+                    { base: 'Dó', pos: -2 }, { base: 'Ré', pos: -1 }, { base: 'Mi', pos: 0 },
+                    { base: 'Fá', pos: 1 },  { base: 'Sol', pos: 2 }, { base: 'Lá', pos: 3 },
+                    { base: 'Si', pos: 4 },  { base: 'Dó', pos: 5 },  { base: 'Ré', pos: 6 },
+                    { base: 'Mi', pos: 7 },  { base: 'Fá', pos: 8 },  { base: 'Sol', pos: 9 }
+                ];
+                const pick = options[Math.floor(Math.random() * options.length)];
+                
+                this.baseName = pick.base; // O nome "natural" (ex: Dó)
+                this.pos = pick.pos;
+                
+                // Lógica de Acidentes (25% de chance de ter acidente)
+                this.accidental = null; // null, 'sharp', 'flat'
+                let chance = Math.random();
+                if(chance > 0.75) {
+                    // Decide se é sustenido ou bemol (evitando Mi#, Si#, Dób, Fáb para simplificar agora)
+                    if(this.baseName !== 'Mi' && this.baseName !== 'Si') {
+                         this.accidental = Math.random() > 0.5 ? 'sharp' : 'flat';
+                    } else if (this.baseName === 'Mi' || this.baseName === 'Si') {
+                        // Para Mi e Si, vamos usar apenas Bemol por enquanto para evitar a confusão teórica de Mi#=Fá
+                         this.accidental = 'flat';
+                    }
+                }
+
+                this.marked = false; // Se já foi acertada/errada
+                this.color = '#000'; // Cor da nota
+            }
+
+            update() {
+                this.x -= gameSpeed;
+                // Passou da zona sem ser clicada
+                if (this.x < hitZone.start - 50 && !this.marked) {
+                    this.marked = true;
+                    loseLife();
+                    showFloatText(this.x, this.y, "Perdeu!", "#c0392b");
+                }
+            }
+
+            draw() {
+                const middleLineY = staffCenterY;
+                const step = lineGap / 2;
+                this.y = middleLineY + ((4 - this.pos) * step);
+
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                // --- DESENHO DA SEMIBREVE (OVAL VAZADA) ---
+                ctx.beginPath();
+                ctx.rotate(-0.15); // Leve inclinação
+                // Usa stroke() em vez de fill() para ser vazada
+                ctx.lineWidth = 3;
+                ctx.strokeStyle = this.color;
+                ctx.ellipse(0, 0, lineGap * 0.7, lineGap * 0.45, 0, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.rotate(0.15); // Reseta rotação
+
+                // NÃO DESENHAMOS HASTE PARA SEMIBREVE
+
+                // --- DESENHO DO ACIDENTE ---
+                if(this.accidental) {
+                    ctx.font = `bold ${lineGap*1.5}px serif`;
+                    ctx.fillStyle = this.color;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const symbol = this.accidental === 'sharp' ? '♯' : '♭';
+                    // Desenha o símbolo à esquerda da nota
+                    ctx.fillText(symbol, -lineGap * 1.2, 0);
+                }
+
+                // --- LINHAS SUPLEMENTARES ---
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#555';
+                // Dó Central (pos -2) e Lá grave (pos -3)
+                if (this.pos <= -2) {
+                    ctx.beginPath(); ctx.moveTo(-lineGap*0.8, 0); ctx.lineTo(lineGap*0.8, 0); ctx.stroke();
+                     if(this.pos === -3) { // Linha extra para o Lá
+                         ctx.beginPath(); ctx.moveTo(-lineGap*0.8, -step*2); ctx.lineTo(lineGap*0.8, -step*2); ctx.stroke();
+                     }
+                }
+                // Lá agudo (pos 8) e Sol agudo (pos 9)
+                if (this.pos >= 8) {
+                    ctx.beginPath(); ctx.moveTo(-lineGap*0.8, 0); ctx.lineTo(lineGap*0.8, 0); ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        function drawStaff() {
+            ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
+            const startY = staffCenterY - (2 * lineGap);
+            for(let i=0; i<5; i++) {
+                let y = startY + (i * lineGap);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+            }
+            // Clave
+            ctx.fillStyle = '#2c3e50'; ctx.font = `${lineGap * 6.5}px serif`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            ctx.fillText('𝄞', 80, staffCenterY - (lineGap * 0.3));
+
+            // Zona de Acerto (Visual)
+            ctx.fillStyle = 'rgba(39, 174, 96, 0.15)';
+            ctx.fillRect(hitZone.start, 0, hitZone.end - hitZone.start, canvas.height);
+            ctx.strokeStyle = 'rgba(39, 174, 96, 0.6)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(hitZone.start, 0); ctx.lineTo(hitZone.start, canvas.height); ctx.stroke();
+        }
+
+        // --- LÓGICA DE INPUT (CLIQUE NOS BOTÕES) ---
+        
+        // 1. Gerencia os botões modificadores (# e b)
+        function toggleModifier(type) {
+            const sharpBtn = document.getElementById('btn-sharp');
+            const flatBtn = document.getElementById('btn-flat');
+
+            if (activeModifier === type) {
+                // Se clicar no que já está ativo, desativa
+                activeModifier = null;
+                sharpBtn.classList.remove('active-sharp');
+                flatBtn.classList.remove('active-flat');
+            } else {
+                // Ativa o novo e desativa o outro
+                activeModifier = type;
+                sharpBtn.classList.toggle('active-sharp', type === 'sharp');
+                flatBtn.classList.toggle('active-flat', type === 'flat');
+                sharpBtn.classList.remove('active-flat'); // Garante limpeza
+                flatBtn.classList.remove('active-sharp'); // Garante limpeza
+            }
+        }
+
+        // 2. Gerencia o clique na nota
+        function inputNote(clickedBaseName) {
+            if (gameState !== 'PLAYING') return;
+
+            // Procura nota na zona
+            const target = notes.find(n => n.x > hitZone.start && n.x < hitZone.end && !n.marked);
+
+            if (target) {
+                // Verifica se a base está certa (ex: Dó) E se o acidente está certo
+                const baseMatch = target.baseName === clickedBaseName;
+                const modifierMatch = target.accidental === activeModifier;
+
+                if (baseMatch && modifierMatch) {
+                    // ACERTOU TUDO!
+                    score += 10 + (target.accidental ? 5 : 0); // Bônus por acidente
+                    playFeedback('hit');
+                    target.marked = true;
+                    notes = notes.filter(n => n !== target);
+                    
+                    // Gamificação: Feedback visual colorido
+                    let color = target.accidental === 'sharp' ? '#e74c3c' : (target.accidental === 'flat' ? '#3498db' : '#27ae60');
+                    let text = target.accidental ? (target.accidental==='sharp'?'Sustenido!':'Bemol!') : 'Boa!';
+                    showFloatText(target.x, target.y - 50, text, color);
+
+                    if(score % 60 === 0) gameSpeed += 0.4; // Aumenta dificuldade
+
+                } else {
+                    // ERROU (Base ou Acidente)
+                    lives--;
+                    playFeedback('miss');
+                    showFloatText(target.x, target.y - 50, "Errou!", "#c0392b");
+                    target.color = '#e74c3c'; // Marca a nota de vermelho
+                    target.marked = true; // Marca para não contar mais
+                }
+            }
+            // Reseta o modificador após cada tentativa de nota (opcional, mas bom para fluxo)
+            toggleModifier(null);
+            updateHUD();
+        }
+
+        function showFloatText(x, y, text, color) {
+            const el = document.createElement('div'); el.className = 'feedback';
+            el.innerText = text; el.style.color = color; el.style.left = x+'px'; el.style.top = y+'px';
+            gameArea.appendChild(el); setTimeout(() => el.remove(), 800);
+        }
+
+        function loseLife() {
+            if (gameState !== 'PLAYING') return;
+            lives--; updateHUD();
+            if (lives <= 0) endGame();
+            else {
+                gameArea.style.background = 'rgba(231, 76, 60, 0.4)';
+                setTimeout(() => gameArea.style.background = '', 150);
+            }
+        }
+        function updateHUD() {
+            document.getElementById('score').innerText = score;
+            document.getElementById('lives').innerText = lives;
+        }
+
+        // --- LOOP PRINCIPAL ---
+        function loop() {
+            if (gameState !== 'PLAYING') return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawStaff();
+            spawnTimer++;
+            if (spawnTimer > spawnInterval) {
+                notes.push(new Note()); spawnTimer = 0;
+                if (spawnInterval > 60) spawnInterval -= 0.2;
+            }
+            notes.forEach(n => { n.update(); n.draw(); });
+            notes = notes.filter(n => n.x > -100 && !n.marked);
+            animationId = requestAnimationFrame(loop);
+        }
+
+        function startGame() {
+            gameState = 'PLAYING'; score = 0; lives = 3; gameSpeed = 3.5; spawnInterval = 110; notes = []; activeModifier = null;
+            document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active-sharp', 'active-flat'));
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            resize(); loop(); updateHUD();
+        }
+        function endGame() {
+            gameState = 'GAMEOVER'; cancelAnimationFrame(animationId);
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+        }
+        function resetGame() { startGame(); }
+    </script>
+</body>
+</html>
+
+
