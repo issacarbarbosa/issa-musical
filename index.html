@@ -2,28 +2,24 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <!-- Esta meta tag é crucial para evitar que o celular dê zoom automático e estrague o jogo -->
+    <!-- Meta tag vital para evitar zoom indesejado no mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mestre da Clave V2.11 (Correção Clave)</title>
+    <title>Mestre da Clave V3.0 (Natural)</title>
     <style>
-        /* Importa a fonte bonita do Google */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
-        
-        /* Reset básico para garantir tamanhos previsíveis */
         * { box-sizing: border-box; touch-action: manipulation; } 
 
         body {
             margin: 0; padding: 0;
             background-color: #2c3e50;
             font-family: 'Poppins', sans-serif;
-            overflow: hidden; /* Impede a tela de rolar para baixo */
+            overflow: hidden; 
             width: 100vw; height: 100vh;
-            color: #333; user-select: none; /* Impede selecionar texto */
+            color: #333; user-select: none;
             display: flex; flex-direction: column;
         }
 
         /* --- TRAVA DE ROTAÇÃO --- */
-        /* Só aparece se a orientação for 'portrait' (celular em pé) */
         #rotate-message {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c3e50; color: white; z-index: 9999;
@@ -31,7 +27,7 @@
         }
         @media screen and (orientation: portrait) {
             #rotate-message { display: flex; }
-            #main-wrapper { display: none !important; } /* Esconde o jogo se estiver em pé */
+            #main-wrapper { display: none !important; }
         }
 
         /* --- LAYOUT PRINCIPAL --- */
@@ -40,55 +36,50 @@
             background: radial-gradient(circle, #fdf6e3 0%, #f0e4d0 100%);
         }
 
-        /* Área onde as notas correm */
+        /* Área do Jogo (Canvas) */
         #game-area { 
-            flex: 1; /* Ocupa todo o espaço que sobrar */
-            position: relative; width: 100%; overflow: hidden; 
+            flex: 1; position: relative; width: 100%; overflow: hidden; 
             display: flex; justify-content: center; align-items: center; 
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* Placar (HUD) flutuando sobre o canvas */
+        /* Placar (HUD) */
         #hud { position: absolute; top: 5px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 5; }
         .hud-pill { background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; color: #2c3e50; border: 1px solid #2c3e50; }
 
-        /* --- BOTÕES E CONTROLES --- */
+        /* --- CONTROLES (Simplificado na V3.0) --- */
         #controls-container {
-            flex: 0 0 auto; /* Não deixa encolher */
+            flex: 0 0 auto; 
             height: auto; 
             background: #34495e;
             display: flex; flex-direction: column; justify-content: center;
-            padding: 5px 5px 10px 5px; gap: 5px;
+            /* Padding reduzido pois não temos mais a linha de cima */
+            padding: 10px 5px 15px 5px; gap: 5px;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3); z-index: 10;
         }
 
-        /* Fileira de cima (Sustenido e Bemol) */
-        #modifiers-row { display: flex; justify-content: center; gap: 15px; height: 35px; }
-        .mod-btn {
-            width: 60px; height: 100%; background: #95a5a6; color: white;
-            border: 2px solid transparent; border-radius: 6px;
-            font-size: 1.2rem; line-height: 1; font-weight: bold;
-            cursor: pointer; transition: all 0.1s; display: flex; align-items: center; justify-content: center;
-        }
-        /* Estilo quando o botão de acidente está ATIVO */
-        .mod-btn.active-sharp { background: #e74c3c; border-color: white; box-shadow: 0 0 8px white; }
-        .mod-btn.active-flat { background: #3498db; border-color: white; box-shadow: 0 0 8px white; }
-
-        /* Fileira de baixo (Notas Naturais) */
-        #notes-row { display: flex; gap: 4px; height: 45px; }
+        /* Fileira Única de Notas */
+        #notes-row { display: flex; gap: 4px; height: 55px; /* Botões um pouco mais altos para facilitar o toque */ }
+        
         .note-btn {
             flex: 1; background: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
-            border: none; border-radius: 4px; font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 0.9rem;
+            border: none; border-radius: 6px; 
+            font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 1rem;
             color: #2c3e50; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2);
+            transition: transform 0.1s;
         }
         .note-btn:active { background: #95a5a6; transform: translateY(2px); }
-        /* Cores sutis na base das teclas */
-        .btn-do { border-bottom: 3px solid #e74c3c; } .btn-re { border-bottom: 3px solid #e67e22; }
-        .btn-mi { border-bottom: 3px solid #f1c40f; } .btn-fa { border-bottom: 3px solid #2ecc71; }
-        .btn-sol { border-bottom: 3px solid #3498db; } .btn-la { border-bottom: 3px solid #9b59b6; }
-        .btn-si { border-bottom: 3px solid #34495e; }
+        
+        /* Cores de Identificação (Opcional, ajuda na memorização) */
+        .btn-do { border-bottom: 4px solid #e74c3c; } 
+        .btn-re { border-bottom: 4px solid #e67e22; }
+        .btn-mi { border-bottom: 4px solid #f1c40f; } 
+        .btn-fa { border-bottom: 4px solid #2ecc71; }
+        .btn-sol { border-bottom: 4px solid #3498db; } 
+        .btn-la { border-bottom: 4px solid #9b59b6; }
+        .btn-si { border-bottom: 4px solid #34495e; }
 
-        /* --- TELAS DE INÍCIO E FIM (OVERLAY) --- */
+        /* --- TELAS DE INÍCIO E FIM --- */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(44, 62, 80, 0.98); display: flex; flex-direction: column;
@@ -96,29 +87,28 @@
         }
         .hidden { display: none !important; }
         
-        h1 { font-size: 1.8rem; margin: 0 0 10px 0; color: #f1c40f; }
-        p { font-size: 1rem; max-width: 80%; margin-bottom: 25px; color: #ecf0f1; }
+        h1 { font-size: 2rem; margin: 0 0 10px 0; color: #f1c40f; }
+        p { font-size: 1.1rem; max-width: 80%; margin-bottom: 30px; color: #ecf0f1; }
         
         .btn-primary { 
-            padding: 12px 40px; font-size: 1.2rem; background-color: #27ae60; 
+            padding: 15px 50px; font-size: 1.3rem; background-color: #27ae60; 
             color: white; border: none; border-radius: 50px; cursor: pointer; 
-            box-shadow: 0 4px 0 #1e8449; 
+            box-shadow: 0 4px 0 #1e8449; animation: pulse 2s infinite;
         }
         
-        /* Texto flutuante ("Boa!", "Errou!") */
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        
         .feedback { position: absolute; font-weight: 900; font-size: 2rem; animation: popUp 0.8s forwards; pointer-events: none; z-index: 50; text-shadow: 1px 1px 0 #fff; }
         @keyframes popUp { 0% { transform: scale(0.5) translateY(0); opacity: 0; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <!-- Mensagem se o usuário estiver com celular em pé -->
     <div id="rotate-message">
         <h1 style="font-size: 3rem;">↻</h1>
         <h2>Gire o celular</h2>
     </div>
 
-    <!-- Interface Principal -->
     <div id="main-wrapper">
         <div id="game-area">
             <canvas id="gameCanvas"></canvas>
@@ -129,12 +119,7 @@
         </div>
 
         <div id="controls-container">
-            <!-- Botões de Acidente -->
-            <div id="modifiers-row">
-                <button id="btn-flat" class="mod-btn" onpointerdown="toggleModifier('flat')">♭</button>
-                <button id="btn-sharp" class="mod-btn" onpointerdown="toggleModifier('sharp')">♯</button>
-            </div>
-            <!-- Botões de Notas -->
+            <!-- NOTAS NATURAIS (Única fileira agora) -->
             <div id="notes-row">
                 <button class="note-btn btn-do" onpointerdown="inputNote('Dó')">Dó</button>
                 <button class="note-btn btn-re" onpointerdown="inputNote('Ré')">Ré</button>
@@ -149,8 +134,8 @@
 
     <!-- Tela Inicial -->
     <div id="start-screen" class="overlay">
-        <h1>Mestre da Clave V2.11</h1>
-        <p>Ajuste: Clave de Sol centralizada na 2ª Linha.</p>
+        <h1>Mestre da Clave</h1>
+        <p>Identifique as notas antes que sumam!<br>Modo Clássico (Notas Naturais)</p>
         <button class="btn-primary" onclick="startGame()">JOGAR</button>
     </div>
 
@@ -162,27 +147,25 @@
     </div>
 
     <script>
-        // Configuração Inicial do Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gameArea = document.getElementById('game-area');
 
-        // Variáveis de Estado (Memória do Jogo)
+        // --- ESTADO DO JOGO ---
         let gameState = 'MENU';
         let score = 0; 
         let lives = 3; 
-        let gameSpeed = 3.0; // Velocidade inicial das notas
+        let gameSpeed = 3.0; 
         let spawnTimer = 0; 
-        let spawnInterval = 110; // Tempo entre notas (frames)
+        let spawnInterval = 110; 
         let notes = []; 
         let animationId;
         
-        let activeModifier = null; // Guarda se clicou em sustenido/bemol
-        let staffCenterY, lineGap; // Posição Y da pauta e tamanho das linhas
-        const hitZone = { start: 90, end: 320 }; // Área verde onde o clique vale
+        // Configuração Visual
+        let staffCenterY, lineGap; 
+        const hitZone = { start: 90, end: 320 }; 
 
-        // --- SISTEMA DE ÁUDIO (Web Audio API) ---
-        // Browsers precisam de interação do usuário para tocar som, por isso iniciamos no 'startGame'
+        // --- ÁUDIO (Simples) ---
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
         function playFeedback(type) {
@@ -190,11 +173,8 @@
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             
-            // 'sine' = som suave (acerto), 'sawtooth' = som áspero (erro)
             osc.type = type === 'hit' ? 'sine' : 'sawtooth';
             osc.frequency.setValueAtTime(type === 'hit' ? 880 : 150, audioCtx.currentTime);
-            
-            // Controle de volume (fade out rápido)
             gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
             
@@ -202,68 +182,56 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
 
-        // Função para ativar Tela Cheia no celular
         function enterFullScreen() {
             const elem = document.documentElement;
             if (elem.requestFullscreen) { elem.requestFullscreen().catch(err => {}); }
             else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
         }
 
-        // Ajusta o tamanho do Canvas quando a tela muda
         function resize() {
             canvas.width = gameArea.clientWidth;
             canvas.height = gameArea.clientHeight;
             staffCenterY = canvas.height / 2;
-            lineGap = Math.min(canvas.height / 10, 22); // Define tamanho da nota baseado na altura da tela
+            lineGap = Math.min(canvas.height / 10, 24); // Aumentei um pouco pois temos mais espaço vertical
         }
         window.addEventListener('resize', resize); resize();
 
-        // --- CLASSE NOTA (O Coração do Jogo) ---
+        // --- CLASSE NOTA (Simplificada V3.0) ---
         class Note {
             constructor() {
-                this.x = canvas.width + 50; // Começa fora da tela na direita
+                this.x = canvas.width + 50; 
                 
-                // --- MAPEAMENTO DE POSIÇÕES ---
-                // 0 = 1ª Linha (Mi4). Números positivos sobem, negativos descem.
+                // Opções de Notas (Sem acidentes)
                 const options = [
-                    { base: 'Dó', pos: -2 }, // Dó Central (Linha Sup. Inf.)
+                    { base: 'Dó', pos: -2 }, 
                     { base: 'Ré', pos: -1 }, 
-                    { base: 'Mi', pos: 0 },  // 1ª Linha
+                    { base: 'Mi', pos: 0 },  
                     { base: 'Fá', pos: 1 },  
-                    { base: 'Sol', pos: 2 }, // 2ª Linha
+                    { base: 'Sol', pos: 2 }, 
                     { base: 'Lá', pos: 3 },
-                    { base: 'Si', pos: 4 },  // 3ª Linha
+                    { base: 'Si', pos: 4 },  
                     { base: 'Dó', pos: 5 },  
-                    { base: 'Ré', pos: 6 },  // 4ª Linha
+                    { base: 'Ré', pos: 6 },  
                     { base: 'Mi', pos: 7 },  
-                    { base: 'Fá', pos: 8 },  // 5ª Linha
-                    { base: 'Sol', pos: 9 }, // Espaço Suplementar Superior (SEM LINHA)
-                    { base: 'Lá', pos: 10 }  // 1ª Linha Suplementar Superior (COM LINHA)
+                    { base: 'Fá', pos: 8 },  
+                    { base: 'Sol', pos: 9 }, 
+                    { base: 'Lá', pos: 10 }  
                 ];
                 
                 const pick = options[Math.floor(Math.random() * options.length)];
                 this.baseName = pick.base; 
                 this.pos = pick.pos;
                 
-                // --- LÓGICA DE ACIDENTES ---
-                this.accidental = null;
-                if(Math.random() > 0.75) { // 25% de chance de ter acidente
-                    // Evita Mi# e Si# por simplificação didática
-                    if(this.baseName !== 'Mi' && this.baseName !== 'Si') {
-                         this.accidental = Math.random() > 0.5 ? 'sharp' : 'flat';
-                    } else { 
-                         this.accidental = 'flat'; // Apenas bemol para Mi e Si
-                    }
-                }
-                this.marked = false; // Evita contar ponto duas vezes
+                // REMOVIDA LÓGICA DE ACIDENTES (V3.0)
+                
+                this.marked = false; 
                 this.color = '#000';
             }
 
             update() {
-                this.x -= gameSpeed; // Move a nota para a esquerda
+                this.x -= gameSpeed; 
                 
-                // [MODIFICAÇÃO V2.10]
-                // Se a nota sair da zona verde (x < hitZone.start), morre imediatamente.
+                // Lógica de colisão precisa (V2.10)
                 if (this.x < hitZone.start && !this.marked) {
                     this.marked = true; 
                     loseLife();
@@ -272,35 +240,25 @@
             }
 
             draw() {
-                // Calcula a altura Y baseada no índice (pos)
                 const y = staffCenterY + ((4 - this.pos) * (lineGap / 2));
                 ctx.save(); ctx.translate(this.x, y);
                 
-                // Desenha a Nota (Semibreve vazada)
-                ctx.beginPath(); ctx.rotate(-0.1); // Leve inclinação estética
-                ctx.lineWidth = 2; ctx.strokeStyle = this.color;
+                // Desenho da Nota
+                ctx.beginPath(); ctx.rotate(-0.1); 
+                ctx.lineWidth = 2.5; ctx.strokeStyle = this.color; // Linha um pouco mais grossa
                 ctx.ellipse(0, 0, lineGap * 0.7, lineGap * 0.45, 0, 0, Math.PI * 2);
                 ctx.stroke(); ctx.rotate(0.1);
 
-                // Desenha o Acidente (se houver)
-                if(this.accidental) {
-                    ctx.font = `bold ${lineGap*1.3}px serif`;
-                    ctx.fillStyle = this.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                    ctx.fillText(this.accidental === 'sharp' ? '♯' : '♭', -lineGap * 1.3, 0);
-                }
+                // REMOVIDO DESENHO DE ACIDENTE (V3.0)
                 
-                // --- DESENHO DAS LINHAS SUPLEMENTARES ---
+                // Linhas Suplementares
                 ctx.lineWidth = 1.5; ctx.strokeStyle = '#555';
                 
-                // Inferiores (Para Dó Central e Lá Grave)
                 if (this.pos <= -2) {
                     ctx.beginPath(); ctx.moveTo(-lineGap*0.8, 0); ctx.lineTo(lineGap*0.8, 0); ctx.stroke();
-                    // Se fosse Lá grave (-3), desenharia outra linha abaixo
                     if(this.pos === -3) { ctx.beginPath(); ctx.moveTo(-lineGap*0.8, -lineGap); ctx.lineTo(lineGap*0.8, -lineGap); ctx.stroke(); }
                 }
                 
-                // Superiores (Apenas se for Lá agudo ou acima)
-                // O Sol (pos 9) não entra aqui, pois é nota de espaço.
                 if (this.pos >= 10) {
                     const dy = (this.pos - 10) * (lineGap / 2);
                     ctx.beginPath(); ctx.moveTo(-lineGap*0.8, dy); ctx.lineTo(lineGap*0.8, dy); ctx.stroke();
@@ -310,7 +268,6 @@
             }
         }
 
-        // Desenha a Pauta (5 linhas) e a Clave
         function drawStaff() {
             ctx.strokeStyle = '#555'; ctx.lineWidth = 2;
             const startY = staffCenterY - (2 * lineGap);
@@ -320,54 +277,33 @@
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
             }
             
-            // --- [ALTERAÇÃO V2.11 - POSIÇÃO DA CLAVE] ---
+            // Clave na 2ª Linha (Sol) (V2.11 Fix)
             ctx.fillStyle = '#2c3e50'; ctx.font = `${lineGap * 5.5}px serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            // Ajustado para 'staffCenterY + (lineGap * 0.8)' para descer a clave
-            // Isso a centraliza na 2ª linha (Sol)
             ctx.fillText('𝄞', 60, staffCenterY + (lineGap * 0.8));
 
-            // Desenha a Zona Verde (Alvo)
+            // Zona Verde
             ctx.fillStyle = 'rgba(39, 174, 96, 0.1)';
             ctx.fillRect(hitZone.start, 0, hitZone.end - hitZone.start, canvas.height);
             ctx.strokeStyle = 'rgba(39, 174, 96, 0.4)'; ctx.lineWidth = 2;
             ctx.strokeRect(hitZone.start, 0, hitZone.end - hitZone.start, canvas.height);
         }
 
-        // Gerencia os botões de Acidente (# e b)
-        function toggleModifier(type) {
-            const sharp = document.getElementById('btn-sharp');
-            const flat = document.getElementById('btn-flat');
-            
-            if (activeModifier === type) {
-                // Se clicar de novo, desativa
-                activeModifier = null;
-                sharp.classList.remove('active-sharp'); flat.classList.remove('active-flat');
-            } else {
-                // Ativa um e desativa o outro
-                activeModifier = type;
-                sharp.classList.toggle('active-sharp', type === 'sharp');
-                flat.classList.toggle('active-flat', type === 'flat');
-                if(type === 'sharp') flat.classList.remove('active-flat');
-                if(type === 'flat') sharp.classList.remove('active-sharp');
-            }
-        }
+        // REMOVIDA FUNÇÃO TOGGLE MODIFIER (V3.0)
 
-        // Verifica se o jogador acertou a nota
+        // Verifica Acerto (Simplificado)
         function inputNote(base) {
             if (gameState !== 'PLAYING') return;
-            // Busca nota dentro da zona verde
             const target = notes.find(n => n.x > hitZone.start && n.x < hitZone.end && !n.marked);
 
             if (target) {
-                // Confere se o nome da nota e o acidente batem
-                if (target.baseName === base && target.accidental === activeModifier) {
-                    score += 10 + (target.accidental ? 5 : 0);
+                // Checagem simples: Só o nome da nota importa
+                if (target.baseName === base) {
+                    score += 10;
                     playFeedback('hit'); target.marked = true;
-                    notes = notes.filter(n => n !== target); // Remove a nota acertada
-                    showFloatText(target.x, target.y - 50, target.accidental ? "Boa!" : "Certo!", "#27ae60");
+                    notes = notes.filter(n => n !== target); 
+                    showFloatText(target.x, target.y - 50, "Certo!", "#27ae60");
                     
-                    // Aumenta velocidade a cada 50 pontos
                     if(score % 50 === 0) gameSpeed += 0.3;
                 } else {
                     lives--; playFeedback('miss');
@@ -375,11 +311,9 @@
                     target.color = '#e74c3c'; target.marked = true;
                 }
             }
-            toggleModifier(null); // Reseta o acidente após clicar na nota
             updateHUD();
         }
 
-        // Efeito visual flutuante (+10, Errou)
         function showFloatText(x, y, text, color) {
             const el = document.createElement('div'); el.className = 'feedback';
             el.innerText = text; el.style.color = color; el.style.left = x+'px'; el.style.top = y+'px';
@@ -394,29 +328,26 @@
         }
         function updateHUD() { document.getElementById('score').innerText = score; document.getElementById('lives').innerText = lives; }
 
-        // Loop de Animação (Roda 60x por segundo)
         function loop() {
             if (gameState !== 'PLAYING') return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpa tela
-            drawStaff(); // Desenha pauta
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            drawStaff(); 
             
             spawnTimer++;
-            // Cria nota nova a cada X frames
             if (spawnTimer > spawnInterval) { 
                 notes.push(new Note()); 
                 spawnTimer = 0; 
-                if (spawnInterval > 60) spawnInterval -= 0.2; // Acelera o spawn
+                if (spawnInterval > 60) spawnInterval -= 0.2; 
             }
             
-            notes.forEach(n => { n.update(); n.draw(); }); // Move e desenha notas
-            notes = notes.filter(n => n.x > -100 && !n.marked); // Remove notas que saíram da tela
+            notes.forEach(n => { n.update(); n.draw(); }); 
+            notes = notes.filter(n => n.x > -100 && !n.marked); 
             animationId = requestAnimationFrame(loop);
         }
 
         function startGame() {
             enterFullScreen();
-            gameState = 'PLAYING'; score = 0; lives = 3; gameSpeed = 3.0; spawnInterval = 110; notes = []; activeModifier = null;
-            document.querySelectorAll('.mod-btn').forEach(b => b.classList.remove('active-sharp', 'active-flat'));
+            gameState = 'PLAYING'; score = 0; lives = 3; gameSpeed = 3.0; spawnInterval = 110; notes = []; 
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             if (audioCtx.state === 'suspended') audioCtx.resume();
