@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mestre da Clave V3.7 (Juicy)</title>
+    <title>Mestre da Clave V3.8</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         * { box-sizing: border-box; touch-action: manipulation; } 
@@ -13,22 +13,6 @@
             overflow: hidden; width: 100vw; height: 100vh; color: #333; user-select: none;
             display: flex; flex-direction: column;
         }
-
-        /* Animação de Shake (Erro) */
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
-        }
-        .shake-effect { animation: shake 0.3s; }
 
         /* TRAVA DE ROTAÇÃO */
         #rotate-message {
@@ -55,7 +39,7 @@
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* HUD - Direita Superior */
+        /* HUD */
         #hud { 
             position: absolute; top: 15px; left: 10px; right: 10px; 
             display: flex; justify-content: flex-end; gap: 10px; align-items: center;
@@ -68,15 +52,14 @@
         }
         .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.8rem; }
 
+        /* CONTROLES */
         #controls-container {
             flex: 0 0 auto; height: auto; background: #34495e;
             display: flex; flex-direction: column; justify-content: center;
             padding: 10px 5px 15px 5px; gap: 5px;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3); z-index: 60;
         }
-
         #notes-row { display: flex; gap: 4px; height: 55px; }
-        
         .note-btn {
             flex: 1; background: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
             border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 1rem;
@@ -111,24 +94,38 @@
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
-        /* FEEDBACK FLUTUANTE (Correção de Visibilidade) */
-        /* Z-Index altíssimo e fixado no body para não ser cortado */
+        /* ANIMAÇÕES DE FEEDBACK */
         .feedback { 
-            position: fixed; /* Fixado na tela, ignora containers */
-            font-weight: 900; font-size: 2.5rem; 
-            animation: popUp 0.8s forwards; 
-            pointer-events: none; z-index: 10000; 
-            text-shadow: 2px 2px 0 #fff, -1px -1px 0 #000;
-            transform: translate(-50%, -50%); /* Centraliza no ponto */
+            position: fixed; font-weight: 900; font-size: 2.5rem; 
+            animation: popUp 0.8s forwards; pointer-events: none; z-index: 10000; 
+            text-shadow: 2px 2px 0 #fff, -1px -1px 0 #000; transform: translate(-50%, -50%); 
         }
-        @keyframes popUp { 
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 
-            20% { transform: translate(-50%, -80%) scale(1.2); opacity: 1; } 
-            100% { transform: translate(-50%, -200%) scale(1); opacity: 0; } 
+        @keyframes popUp { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; } 20% { transform: translate(-50%, -80%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -200%) scale(1); opacity: 0; } }
+
+        /* NOVO ESTILO DE LEVEL UP (Centralizado e Grande) */
+        .levelup-banner {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4rem; font-weight: 900; color: #f1c40f;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 10001; pointer-events: none;
+            animation: bannerPop 1.5s forwards;
+            text-align: center; width: 100%;
+        }
+        .levelup-sub { font-size: 1.5rem; color: white; display: block; margin-top: 10px; }
+        
+        @keyframes bannerPop {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            25% { transform: translate(-50%, -50%) scale(1); }
+            80% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
         }
 
         .levelup-flash { animation: flashScreen 0.5s; }
         @keyframes flashScreen { 0% { background: rgba(255, 255, 255, 0.8); } 100% { background: transparent; } }
+        
+        .shake-effect { animation: shake 0.3s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
     </style>
 </head>
 <body>
@@ -160,7 +157,6 @@
         </div>
     </div>
 
-    <!-- TELA INICIAL -->
     <div id="start-screen" class="overlay">
         <h1>Mestre da Clave</h1>
         <p>Comece com <strong>Dó e Ré</strong>.<br>Acerte para subir de nível!</p>
@@ -168,7 +164,6 @@
         <div class="highscore-text">🏆 Seu Recorde: <span id="start-highscore">0</span></div>
     </div>
 
-    <!-- GAME OVER -->
     <div id="game-over-screen" class="overlay hidden">
         <h1 style="color: #e74c3c;">Fim de Jogo!</h1>
         <p>Você fez <strong id="final-score" style="color:#fff">0</strong> pontos<br>e chegou no Nível <strong id="final-level" style="color:#f1c40f">1</strong></p>
@@ -182,7 +177,7 @@
         const gameArea = document.getElementById('game-area');
         const mainWrapper = document.getElementById('main-wrapper');
 
-        // --- SISTEMA DE PARTÍCULAS (JUICY V3.7) ---
+        // Partículas
         let particles = [];
         class Particle {
             constructor(x, y, color) {
@@ -190,23 +185,14 @@
                 this.size = Math.random() * 5 + 2;
                 this.speedX = Math.random() * 6 - 3;
                 this.speedY = Math.random() * 6 - 3;
-                this.life = 1.0; // Opacidade
+                this.life = 1.0;
             }
-            update() {
-                this.x += this.speedX; this.y += this.speedY; this.life -= 0.05;
-            }
-            draw() {
-                ctx.globalAlpha = this.life;
-                ctx.fillStyle = this.color;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-                ctx.globalAlpha = 1.0;
-            }
+            update() { this.x += this.speedX; this.y += this.speedY; this.life -= 0.05; }
+            draw() { ctx.globalAlpha = this.life; ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); ctx.globalAlpha = 1.0; }
         }
-        function spawnParticles(x, y, color) {
-            for(let i=0; i<10; i++) particles.push(new Particle(x, y, color));
-        }
+        function spawnParticles(x, y, color) { for(let i=0; i<10; i++) particles.push(new Particle(x, y, color)); }
 
-        // --- PROGRESSÃO ---
+        // PROGRESSÃO
         const progressionList = [
             { base: 'Dó', pos: -2 }, { base: 'Ré', pos: -1 }, 
             { base: 'Mi', pos: 0 }, { base: 'Fá', pos: 1 }, { base: 'Sol', pos: 2 }, 
@@ -246,13 +232,14 @@
         class Note {
             constructor() {
                 this.x = canvas.width + 50; 
+                // CORREÇÃO LÓGICA V3.8: TRAVA O SORTEIO NO MÁXIMO DA LISTA
                 const unlockedCount = Math.min(currentLevel + 1, progressionList.length);
                 const availableNotes = progressionList.slice(0, unlockedCount);
                 const pick = availableNotes[Math.floor(Math.random() * availableNotes.length)];
                 
                 this.baseName = pick.base; this.pos = pick.pos;
                 
-                // Lógica Desmame (V3.6)
+                // Lógica Desmame (Nível 13+)
                 this.isBlack = false;
                 if (currentLevel >= 13) {
                     const blackChance = (currentLevel - 12) * 0.2;
@@ -300,18 +287,13 @@
                 if (target.baseName === base) {
                     score += 10; hitsInLevel++;
                     playSound(880, 'sine'); target.marked = true;
-                    // SPAWN PARTICLES (JUICY)
-                    spawnParticles(target.x, target.y + (staffCenterY + ((4 - target.pos) * (lineGap / 2)) - target.y), target.trueColor); 
-                    // Correção: Posição Y da partícula deve ser a posição desenhada, não a lógica
                     const drawY = staffCenterY + ((4 - target.pos) * (lineGap / 2));
                     spawnParticles(target.x, drawY, target.trueColor);
-
                     notes = notes.filter(n => n !== target); 
                     showFloatText(target.x, drawY - 50, "Certo!", target.trueColor);
                     checkLevelUp();
                 } else {
                     lives--; playSound(150, 'sawtooth');
-                    // SCREEN SHAKE (JUICY)
                     triggerShake();
                     const drawY = staffCenterY + ((4 - target.pos) * (lineGap / 2));
                     showFloatText(target.x, drawY - 50, "Errou!", "#c0392b");
@@ -324,43 +306,58 @@
         function checkLevelUp() {
             const progress = (hitsInLevel / HITS_TO_LEVELUP) * 100;
             document.getElementById('xp-bar-fill').style.width = progress + '%';
+
             if (hitsInLevel >= HITS_TO_LEVELUP) {
-                if (currentLevel + 1 < progressionList.length) {
-                    currentLevel++; hitsInLevel = 0; 
-                    if(currentLevel <= 12) { gameSpeed += 0.2; spawnInterval -= 2; }
-                    let msg = `Nível ${currentLevel}!`;
-                    if (currentLevel >= 13 && currentLevel <= 17) msg = "Modo Desmame!";
-                    playSound(1200, 'square'); document.getElementById('xp-bar-fill').style.width = '0%'; 
-                    showFloatText(canvas.width/2, canvas.height/2, msg, "#f1c40f");
-                    const flash = document.createElement('div'); flash.className = 'overlay levelup-flash';
-                    document.body.appendChild(flash); setTimeout(() => flash.remove(), 500);
-                }
+                // CORREÇÃO LÓGICA V3.8: O Nível pode subir infinitamente
+                currentLevel++;
+                hitsInLevel = 0; 
+                
+                // Velocidade só aumenta nos níveis iniciais para não ficar impossível
+                if(currentLevel <= 12) { gameSpeed += 0.2; spawnInterval -= 2; }
+                
+                let msg = `Nível ${currentLevel}`;
+                let subMsg = "Nova Nota!";
+                
+                // Mensagens personalizadas
+                if (currentLevel > 12) subMsg = "Modo Desmame!";
+                if (currentLevel > 17) subMsg = "Mestre Supremo!";
+
+                playSound(1200, 'square'); 
+                document.getElementById('xp-bar-fill').style.width = '0%'; 
+                
+                // CHAMA O NOVO BANNER (Sem conflito visual)
+                showLevelBanner(msg, subMsg);
+                
+                const flash = document.createElement('div'); flash.className = 'overlay levelup-flash';
+                document.body.appendChild(flash); setTimeout(() => flash.remove(), 500);
             }
         }
 
-        // TEXTO FLUTUANTE (Correção: Append to Body)
+        // TEXTO FLUTUANTE (Para acertos/erros)
         function showFloatText(x, y, text, color) {
-            // Ajusta coordenadas para serem globais (body)
             const rect = canvas.getBoundingClientRect();
             const globalX = rect.left + x;
             const globalY = rect.top + y;
-
             const el = document.createElement('div'); el.className = 'feedback';
             el.innerText = text; el.style.color = color; 
             el.style.left = globalX+'px'; el.style.top = globalY+'px';
-            document.body.appendChild(el); // Fixa no body pra não cortar
-            setTimeout(() => el.remove(), 800);
+            document.body.appendChild(el); setTimeout(() => el.remove(), 800);
         }
 
-        // SCREEN SHAKE
-        function triggerShake() {
-            mainWrapper.classList.add('shake-effect');
-            setTimeout(() => mainWrapper.classList.remove('shake-effect'), 300);
+        // NOVO BANNER CENTRAL (Para Level Up)
+        function showLevelBanner(title, subtitle) {
+            const el = document.createElement('div');
+            el.className = 'levelup-banner';
+            el.innerHTML = `${title}<span class="levelup-sub">${subtitle}</span>`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1600); // Fica um pouco mais tempo
         }
+
+        function triggerShake() { mainWrapper.classList.add('shake-effect'); setTimeout(() => mainWrapper.classList.remove('shake-effect'), 300); }
 
         function loseLife() {
             if (gameState !== 'PLAYING') return;
-            lives--; updateHUD(); triggerShake(); // Shake tbm ao perder vida por passar
+            lives--; updateHUD(); triggerShake();
             if (lives <= 0) endGame();
             else { gameArea.style.background = 'rgba(231, 76, 60, 0.3)'; setTimeout(() => gameArea.style.background = '', 150); }
         }
@@ -375,14 +372,7 @@
             if (gameState !== 'PLAYING') return;
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
             drawStaff(); 
-            
-            // Desenha Partículas
-            for(let i=particles.length-1; i>=0; i--) {
-                particles[i].update();
-                particles[i].draw();
-                if(particles[i].life <= 0) particles.splice(i, 1);
-            }
-
+            for(let i=particles.length-1; i>=0; i--) { particles[i].update(); particles[i].draw(); if(particles[i].life <= 0) particles.splice(i, 1); }
             spawnTimer++;
             if (spawnTimer > spawnInterval) { notes.push(new Note()); spawnTimer = 0; }
             notes.forEach(n => { n.update(); n.draw(); }); 
