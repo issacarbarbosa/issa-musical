@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mestre da Clave V3.9 (PC Fix)</title>
+    <title>Mestre da Clave V3.10 (Delta Time)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         * { box-sizing: border-box; touch-action: manipulation; } 
@@ -12,11 +12,9 @@
             margin: 0; padding: 0; background-color: #1e272e; font-family: 'Poppins', sans-serif;
             overflow: hidden; width: 100vw; height: 100vh; color: #333; user-select: none;
             display: flex; flex-direction: column;
-            /* Fundo decorativo para quando estiver no PC */
             background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
         }
 
-        /* TRAVA DE ROTAÇÃO */
         #rotate-message {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #2c3e50; color: white; z-index: 9999;
@@ -27,21 +25,14 @@
             #main-wrapper { display: none !important; }
         }
 
-        /* --- CONTAINER PRINCIPAL (A MUDANÇA ESTÁ AQUI) --- */
         #main-wrapper { 
             flex: 1; display: flex; flex-direction: column; 
             width: 100%; height: 100%;
-            
-            /* Trava a largura máxima no PC para manter a consistência do jogo */
-            max-width: 850px; 
-            margin: 0 auto; /* Centraliza no meio da tela */
-            
+            max-width: 850px; margin: 0 auto; 
             background: radial-gradient(circle, #fdf6e3 0%, #f0e4d0 100%);
-            box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Sombra para destacar do fundo */
-            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); position: relative;
         }
 
-        /* Máscara de Fade na direita (Para a nota nascer suave) */
         #main-wrapper::after {
             content: ''; position: absolute; right: 0; top: 0; bottom: 100px; width: 60px;
             background: linear-gradient(to right, transparent, #f0e4d0);
@@ -57,7 +48,6 @@
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* HUD */
         #hud { 
             position: absolute; top: 15px; left: 10px; right: 10px; 
             display: flex; justify-content: flex-end; gap: 10px; align-items: center;
@@ -70,7 +60,6 @@
         }
         .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.8rem; }
 
-        /* CONTROLES */
         #controls-container {
             flex: 0 0 auto; height: auto; background: #34495e;
             display: flex; flex-direction: column; justify-content: center;
@@ -93,8 +82,6 @@
         .btn-la { border-bottom: 4px solid #9b59b6; color: #8e44ad; }
         .btn-si { border-bottom: 4px solid #00d2d3; color: #008c9e; }
 
-        /* OVERLAYS - Fixados dentro do Wrapper ou Tela Cheia? */
-        /* Melhor Tela Cheia para garantir foco */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(44, 62, 80, 0.98); display: flex; flex-direction: column;
@@ -217,9 +204,19 @@
         ];
 
         let gameState = 'MENU';
-        let score = 0; let lives = 3; let gameSpeed = 2.5; 
-        let spawnTimer = 0; let spawnInterval = 120; 
+        let score = 0; let lives = 3; 
+        
+        // [MODIFICAÇÃO V3.10: Velocidade em Pixels/Segundo]
+        // 150 px/s é uma boa velocidade inicial (equivalente ao 2.5 antigo em 60fps)
+        let gameSpeedPPS = 150; 
+        
+        let spawnTimer = 0; 
+        // Intervalo em Milissegundos (2000ms = 2 segundos)
+        let spawnIntervalMS = 2000; 
+        
         let notes = []; let animationId;
+        let lastTime = 0; // Variável para calcular o Delta Time
+
         let staffCenterY, lineGap; const hitZone = { start: 90, end: 320 }; 
 
         let currentLevel = 1; let hitsInLevel = 0; const HITS_TO_LEVELUP = 10; 
@@ -247,7 +244,6 @@
         class Note {
             constructor() {
                 this.x = canvas.width + 50; 
-                // CORREÇÃO LÓGICA V3.8
                 const unlockedCount = Math.min(currentLevel + 1, progressionList.length);
                 const availableNotes = progressionList.slice(0, unlockedCount);
                 const pick = availableNotes[Math.floor(Math.random() * availableNotes.length)];
@@ -263,8 +259,12 @@
                 this.trueColor = noteColors[this.baseName];
                 this.marked = false; 
             }
-            update() {
-                this.x -= gameSpeed; 
+            
+            // [MODIFICAÇÃO V3.10: Update recebe deltaTime em segundos]
+            update(dt) {
+                // Movimento = Velocidade (px/s) * Tempo (s)
+                this.x -= gameSpeedPPS * dt; 
+                
                 if (this.x < hitZone.start && !this.marked) {
                     this.marked = true; loseLife();
                     showFloatText(this.x, this.y, "Passou!", "#c0392b");
@@ -323,7 +323,11 @@
 
             if (hitsInLevel >= HITS_TO_LEVELUP) {
                 currentLevel++; hitsInLevel = 0; 
-                if(currentLevel <= 12) { gameSpeed += 0.2; spawnInterval -= 2; }
+                if(currentLevel <= 12) { 
+                    // [MODIFICAÇÃO V3.10: Aumenta PPS e diminui MS]
+                    gameSpeedPPS += 12; // +12px/s a cada nível
+                    spawnIntervalMS -= 40; // -40ms a cada nível
+                }
                 let msg = `Nível ${currentLevel}`;
                 let subMsg = "Nova Nota!";
                 if (currentLevel > 12) subMsg = "Modo Desmame!";
@@ -369,14 +373,28 @@
             document.getElementById('lives').innerText = lives; 
         }
 
-        function loop() {
+        // [MODIFICAÇÃO V3.10: LOOP COM DELTA TIME]
+        function loop(timestamp) {
             if (gameState !== 'PLAYING') return;
+            
+            // Calcula o tempo passado desde o último quadro (em segundos)
+            if (!lastTime) lastTime = timestamp;
+            const deltaTime = (timestamp - lastTime) / 1000; // Converte ms para segundos
+            lastTime = timestamp;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
             drawStaff(); 
             for(let i=particles.length-1; i>=0; i--) { particles[i].update(); particles[i].draw(); if(particles[i].life <= 0) particles.splice(i, 1); }
-            spawnTimer++;
-            if (spawnTimer > spawnInterval) { notes.push(new Note()); spawnTimer = 0; }
-            notes.forEach(n => { n.update(); n.draw(); }); 
+            
+            // Spawn Timer agora conta milissegundos reais
+            spawnTimer += (deltaTime * 1000); 
+            if (spawnTimer > spawnIntervalMS) { 
+                notes.push(new Note()); 
+                spawnTimer = 0; 
+            }
+            
+            // Passa o deltaTime para as notas moverem
+            notes.forEach(n => { n.update(deltaTime); n.draw(); }); 
             notes = notes.filter(n => n.x > -100 && !n.marked); 
             animationId = requestAnimationFrame(loop);
         }
@@ -384,13 +402,22 @@
         function startGame() {
             enterFullScreen();
             gameState = 'PLAYING'; score = 0; lives = 3; 
-            currentLevel = 1; hitsInLevel = 0; gameSpeed = 2.5; spawnInterval = 120;
+            
+            // RESET DO JOGO (Valores em Tempo e Pixels)
+            currentLevel = 1; hitsInLevel = 0; 
+            gameSpeedPPS = 150; // Começa com 150px por segundo
+            spawnIntervalMS = 2000; // Uma nota a cada 2 segundos
+            
             document.getElementById('xp-bar-fill').style.width = '0%';
             notes = []; particles = [];
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            resize(); loop(); updateHUD();
+            
+            resize(); 
+            lastTime = performance.now(); // Reseta o relógio
+            loop(lastTime); 
+            updateHUD();
         }
 
         function endGame() { 
