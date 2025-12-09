@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mestre da Clave V3.3 (Níveis)</title>
+    <title>Mestre da Clave V3.4 (Recorde)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         * { box-sizing: border-box; touch-action: manipulation; } 
@@ -29,13 +29,8 @@
             background: radial-gradient(circle, #fdf6e3 0%, #f0e4d0 100%);
         }
 
-        /* BARRA DE PROGRESSO (XP) */
-        #xp-bar-container {
-            width: 100%; height: 6px; background: rgba(0,0,0,0.1); position: absolute; top: 0; left: 0; z-index: 20;
-        }
-        #xp-bar-fill {
-            height: 100%; width: 0%; background: #27ae60; transition: width 0.3s;
-        }
+        #xp-bar-container { width: 100%; height: 6px; background: rgba(0,0,0,0.1); position: absolute; top: 0; left: 0; z-index: 20; }
+        #xp-bar-fill { height: 100%; width: 0%; background: #27ae60; transition: width 0.3s; }
 
         #game-area { 
             flex: 1; position: relative; width: 100%; overflow: hidden; 
@@ -43,11 +38,18 @@
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* HUD Atualizado com Nível */
-        #hud { position: absolute; top: 15px; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; z-index: 5; }
-        .hud-pill { background: rgba(255,255,255,0.9); padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.9rem; color: #2c3e50; border: 1px solid #2c3e50; display: flex; gap: 5px; }
-        
-        .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 8px; border-radius: 10px; margin-left: 5px; }
+        /* HUD COM 3 ELEMENTOS (Pontos, Nível, Vidas) */
+        #hud { 
+            position: absolute; top: 15px; left: 10px; right: 10px; 
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: none; z-index: 5; 
+        }
+        .hud-pill { 
+            background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 15px; 
+            font-weight: bold; font-size: 0.9rem; color: #2c3e50; border: 1px solid #2c3e50; 
+            display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.8rem; }
 
         #controls-container {
             flex: 0 0 auto; height: auto; background: #34495e;
@@ -64,9 +66,7 @@
             color: #2c3e50; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
         }
         .note-btn:active { background: #95a5a6; transform: translateY(2px); }
-        .btn-locked { opacity: 0.3; pointer-events: none; filter: grayscale(100%); } /* Estilo para botões bloqueados */
 
-        /* CORES */
         .btn-do { border-bottom: 4px solid #e74c3c; color: #c0392b; } 
         .btn-re { border-bottom: 4px solid #e67e22; color: #d35400; }
         .btn-mi { border-bottom: 4px solid #f1c40f; color: #f39c12; } 
@@ -83,19 +83,20 @@
         .hidden { display: none !important; }
         
         h1 { font-size: 2rem; margin: 0 0 10px 0; color: #f1c40f; }
-        p { font-size: 1.1rem; max-width: 80%; margin-bottom: 30px; color: #ecf0f1; }
+        p { font-size: 1.1rem; max-width: 80%; margin-bottom: 20px; color: #ecf0f1; }
         
+        .highscore-text { font-size: 0.9rem; color: #bdc3c7; margin-top: 10px; font-weight: 300; }
+
         .btn-primary { 
             padding: 15px 50px; font-size: 1.3rem; background-color: #27ae60; 
             color: white; border: none; border-radius: 50px; cursor: pointer; 
-            box-shadow: 0 4px 0 #1e8449; animation: pulse 2s infinite;
+            box-shadow: 0 4px 0 #1e8449; animation: pulse 2s infinite; margin-top: 10px;
         }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         .feedback { position: absolute; font-weight: 900; font-size: 2rem; animation: popUp 0.8s forwards; pointer-events: none; z-index: 50; text-shadow: 1px 1px 0 #fff; }
         @keyframes popUp { 0% { transform: scale(0.5) translateY(0); opacity: 0; } 100% { transform: scale(1) translateY(-60px); opacity: 0; } }
 
-        /* Level Up Flash */
         .levelup-flash { animation: flashScreen 0.5s; }
         @keyframes flashScreen { 0% { background: rgba(255, 255, 255, 0.8); } 100% { background: transparent; } }
     </style>
@@ -110,7 +111,8 @@
         <div id="game-area">
             <canvas id="gameCanvas"></canvas>
             <div id="hud">
-                <div class="hud-pill">Nível: <span id="level-display" class="level-badge">1</span></div>
+                <div class="hud-pill">Pts: <span id="score">0</span></div>
+                <div class="hud-pill">Nível <span id="level-display" class="level-badge">1</span></div>
                 <div class="hud-pill">Vidas: <span id="lives">3</span></div>
             </div>
         </div>
@@ -128,16 +130,20 @@
         </div>
     </div>
 
+    <!-- TELA INICIAL COM RECORDE -->
     <div id="start-screen" class="overlay">
         <h1>Mestre da Clave</h1>
-        <p>Começamos fácil: Só <strong>Dó e Ré</strong>.<br>Acerte para liberar novas notas!</p>
+        <p>Comece com <strong>Dó e Ré</strong>.<br>Acerte para subir de nível!</p>
         <button class="btn-primary" onclick="startGame()">JOGAR</button>
+        <div class="highscore-text">🏆 Seu Recorde: <span id="start-highscore">0</span></div>
     </div>
 
+    <!-- GAME OVER COM RECORDE -->
     <div id="game-over-screen" class="overlay hidden">
         <h1 style="color: #e74c3c;">Fim de Jogo!</h1>
-        <p>Você chegou no Nível <strong id="final-level" style="color:#f1c40f">1</strong></p>
-        <button class="btn-primary" onclick="resetGame()">Tentar Novamente</button>
+        <p>Você fez <strong id="final-score" style="color:#fff">0</strong> pontos<br>e chegou no Nível <strong id="final-level" style="color:#f1c40f">1</strong></p>
+        <button class="btn-primary" onclick="resetGame()">Jogar Novamente</button>
+        <div class="highscore-text">🏆 Recorde Atual: <span id="end-highscore">0</span></div>
     </div>
 
     <script>
@@ -145,35 +151,28 @@
         const ctx = canvas.getContext('2d');
         const gameArea = document.getElementById('game-area');
 
-        // --- SISTEMA DE PROGRESSÃO (V3.3) ---
-        // Lista Mestra de Notas em Ordem de Dificuldade (Dó3 -> Lá4)
-        // O jogo vai desbloqueando essa lista item por item.
+        // PROGRESSÃO (Scaffolding)
         const progressionList = [
-            { base: 'Dó', pos: -2 }, // Nível 1: Dó
-            { base: 'Ré', pos: -1 }, // Nível 1: Ré
-            { base: 'Mi', pos: 0 },  // Nível 2
-            { base: 'Fá', pos: 1 },  // Nível 3
-            { base: 'Sol', pos: 2 }, // Nível 4
-            { base: 'Lá', pos: 3 },  // Nível 5
-            { base: 'Si', pos: 4 },  // Nível 6
-            { base: 'Dó', pos: 5 },  // Nível 7 (Dó Agudo)
-            { base: 'Ré', pos: 6 },
-            { base: 'Mi', pos: 7 },
-            { base: 'Fá', pos: 8 },
-            { base: 'Sol', pos: 9 },
-            { base: 'Lá', pos: 10 }
+            { base: 'Dó', pos: -2 }, { base: 'Ré', pos: -1 }, 
+            { base: 'Mi', pos: 0 }, { base: 'Fá', pos: 1 }, { base: 'Sol', pos: 2 }, 
+            { base: 'Lá', pos: 3 }, { base: 'Si', pos: 4 }, { base: 'Dó', pos: 5 }, 
+            { base: 'Ré', pos: 6 }, { base: 'Mi', pos: 7 }, { base: 'Fá', pos: 8 },
+            { base: 'Sol', pos: 9 }, { base: 'Lá', pos: 10 }
         ];
 
         let gameState = 'MENU';
-        let lives = 3; let gameSpeed = 2.5; 
+        let score = 0; let lives = 3; let gameSpeed = 2.5; 
         let spawnTimer = 0; let spawnInterval = 120; 
         let notes = []; let animationId;
         let staffCenterY, lineGap; const hitZone = { start: 90, end: 320 }; 
 
-        // Variáveis de Nível
         let currentLevel = 1;
         let hitsInLevel = 0;
-        const HITS_TO_LEVELUP = 10; // Precisa de 10 acertos para subir
+        const HITS_TO_LEVELUP = 10; 
+
+        // RECUPERA RECORDE DO CELULAR
+        let highScore = localStorage.getItem('mestreClave_record') || 0;
+        document.getElementById('start-highscore').innerText = highScore;
 
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const noteColors = { 'Dó':'#e74c3c', 'Ré':'#e67e22', 'Mi':'#f1c40f', 'Fá':'#2ecc71', 'Sol':'#3498db', 'Lá':'#9b59b6', 'Si':'#00d2d3' };
@@ -196,15 +195,9 @@
         class Note {
             constructor() {
                 this.x = canvas.width + 50; 
-                
-                // --- LÓGICA DE SORTEIO DINÂMICO ---
-                // O número de notas disponíveis depende do nível atual.
-                // Nível 1 = 2 notas (índices 0 e 1). Nível 2 = 3 notas (índices 0, 1 e 2).
-                // Fórmula: min(currentLevel + 1, total)
+                // Sorteio inteligente baseado no nível
                 const unlockedCount = Math.min(currentLevel + 1, progressionList.length);
                 const availableNotes = progressionList.slice(0, unlockedCount);
-                
-                // Sorteia uma nota DENTRO das desbloqueadas
                 const pick = availableNotes[Math.floor(Math.random() * availableNotes.length)];
                 
                 this.baseName = pick.base; 
@@ -248,14 +241,12 @@
 
             if (target) {
                 if (target.baseName === base) {
+                    score += 10; // 10 Pontos por acerto
                     hitsInLevel++;
                     playSound(880, 'sine'); target.marked = true;
                     notes = notes.filter(n => n !== target); 
                     showFloatText(target.x, target.y - 50, "Certo!", target.color);
-                    
-                    // --- CHECAGEM DE LEVEL UP ---
                     checkLevelUp();
-                    
                 } else {
                     lives--; playSound(150, 'sawtooth');
                     showFloatText(target.x, target.y - 50, "Errou!", "#c0392b");
@@ -266,27 +257,18 @@
         }
 
         function checkLevelUp() {
-            // Atualiza barra de XP
             const progress = (hitsInLevel / HITS_TO_LEVELUP) * 100;
             document.getElementById('xp-bar-fill').style.width = progress + '%';
 
             if (hitsInLevel >= HITS_TO_LEVELUP) {
-                // SÓ SOBE SE AINDA TIVER NOTAS PRA LIBERAR
                 if (currentLevel + 1 < progressionList.length) {
                     currentLevel++;
                     hitsInLevel = 0;
-                    gameSpeed += 0.2; // Aumenta um pouco a velocidade
-                    spawnInterval -= 2; // Nascem mais rápido
-                    
-                    // Feedback Visual e Sonoro
-                    playSound(1200, 'square'); // Som de Level Up
-                    document.getElementById('xp-bar-fill').style.width = '0%'; // Reseta barra
-                    
-                    // Mostra qual nota liberou
-                    const newNote = progressionList[currentLevel]; // A nova nota
+                    gameSpeed += 0.2; 
+                    spawnInterval -= 2; 
+                    playSound(1200, 'square'); 
+                    document.getElementById('xp-bar-fill').style.width = '0%'; 
                     showFloatText(canvas.width/2, canvas.height/2, `Nível ${currentLevel}!`, "#f1c40f");
-                    
-                    // Flash na tela
                     const flash = document.createElement('div');
                     flash.className = 'overlay levelup-flash';
                     document.body.appendChild(flash);
@@ -309,6 +291,7 @@
         }
         
         function updateHUD() { 
+            document.getElementById('score').innerText = score; 
             document.getElementById('level-display').innerText = currentLevel; 
             document.getElementById('lives').innerText = lives; 
         }
@@ -316,8 +299,7 @@
         function loop() {
             if (gameState !== 'PLAYING') return;
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            drawStaff(); 
-            spawnTimer++;
+            drawStaff(); spawnTimer++;
             if (spawnTimer > spawnInterval) { notes.push(new Note()); spawnTimer = 0; }
             notes.forEach(n => { n.update(); n.draw(); }); 
             notes = notes.filter(n => n.x > -100 && !n.marked); 
@@ -327,20 +309,30 @@
         function startGame() {
             enterFullScreen();
             gameState = 'PLAYING'; score = 0; lives = 3; 
-            
-            // RESET DO PROGRESSO
             currentLevel = 1; hitsInLevel = 0; gameSpeed = 2.5; spawnInterval = 120;
             document.getElementById('xp-bar-fill').style.width = '0%';
-            
             notes = []; 
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('game-over-screen').classList.add('hidden');
             if (audioCtx.state === 'suspended') audioCtx.resume();
             resize(); loop(); updateHUD();
         }
+
         function endGame() { 
             gameState = 'GAMEOVER'; cancelAnimationFrame(animationId); 
-            document.getElementById('final-level').innerText = currentLevel; 
+            
+            // --- LÓGICA DE RECORDE (LocalStorage) ---
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('mestreClave_record', highScore);
+            }
+            
+            // Atualiza textos do Game Over
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-level').innerText = currentLevel;
+            document.getElementById('end-highscore').innerText = highScore;
+            document.getElementById('start-highscore').innerText = highScore; // Atualiza para a próxima
+
             document.getElementById('game-over-screen').classList.remove('hidden'); 
         }
         function resetGame() { startGame(); }
@@ -349,4 +341,4 @@
 </html>
 
 
-    
+                                                                                              
