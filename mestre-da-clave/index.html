@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mestre da Clave V3.22 (Confetti & Fanfare)</title>
+    <title>Mestre da Clave V3.24 (Base V22 + UI)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         * { box-sizing: border-box; touch-action: manipulation; } 
@@ -50,15 +50,15 @@
 
         #hud { 
             position: absolute; top: 15px; left: 10px; right: 10px; 
-            display: flex; justify-content: flex-end; gap: 10px; align-items: center;
+            display: flex; justify-content: flex-end; gap: 15px; align-items: center;
             pointer-events: none; z-index: 50; 
         }
         .hud-pill { 
             background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 15px; 
-            font-weight: bold; font-size: 0.9rem; color: #2c3e50; border: 1px solid #2c3e50; 
-            display: flex; align-items: center; gap: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            font-weight: bold; font-size: 1.1rem; color: #2c3e50; border: 1px solid #2c3e50; 
+            display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.8rem; }
+        .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.9rem; }
 
         #controls-container {
             flex: 0 0 auto; height: auto; background: #34495e;
@@ -139,10 +139,12 @@
         
         <div id="game-area">
             <canvas id="gameCanvas"></canvas>
+            
+            <!-- HUD ATUALIZADO COM EMOJIS (ALTERAÇÃO 1) -->
             <div id="hud">
-                <div class="hud-pill">Nível <span id="level-display" class="level-badge">1</span></div>
-                <div class="hud-pill">Pts: <span id="score">0</span></div>
-                <div class="hud-pill">Vidas: <span id="lives">3</span></div>
+                <div class="hud-pill">⭐ <span id="level-display" class="level-badge">1</span></div>
+                <div class="hud-pill">🎯 <span id="score">0</span></div>
+                <div class="hud-pill">❤️ <span id="lives">3</span></div>
             </div>
         </div>
 
@@ -281,10 +283,7 @@
                 ctx.globalAlpha = 1.0; 
             }
         }
-        
-        function spawnParticles(x, y, color) { 
-            for(let i=0; i<10; i++) particles.push(new Particle(x, y, color)); 
-        }
+        function spawnParticles(x, y, color) { for(let i=0; i<10; i++) particles.push(new Particle(x, y, color)); }
 
         // === V3: CONFETTI RAIN (CHUVA DE CONFETES) ===
         function spawnConfetti() {
@@ -438,7 +437,10 @@
                 currentLevel++; hitsInLevel = 0; 
                 if(currentLevel <= 12) { gameSpeedPPS += 12; spawnIntervalMS -= 40; }
                 let msg = `Nível ${currentLevel}`; let subMsg = "Nova Nota!";
-                if (currentLevel > 12) subMsg = "Modo Desmame!";
+                
+                // === ALTERAÇÃO 2 (MODO PARTITURA) ===
+                if (currentLevel > 12) subMsg = "Modo Partitura!";
+                
                 if (currentLevel > 17) subMsg = "Mestre Supremo!";
                 
                 // === A2 (FANFARRA) ===
