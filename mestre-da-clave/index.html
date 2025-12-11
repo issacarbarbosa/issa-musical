@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mestre da Clave V3.24 (Base V22 + UI)</title>
+
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF25LGNKEJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-LF25LGNKEJ');
+    </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
         * { box-sizing: border-box; touch-action: manipulation; } 
@@ -140,7 +151,6 @@
         <div id="game-area">
             <canvas id="gameCanvas"></canvas>
             
-            <!-- HUD ATUALIZADO COM EMOJIS (ALTERAÇÃO 1) -->
             <div id="hud">
                 <div class="hud-pill">⭐ <span id="level-display" class="level-badge">1</span></div>
                 <div class="hud-pill">🎯 <span id="score">0</span></div>
@@ -196,7 +206,6 @@
             },
             init: function() { if (this.ctx.state === 'suspended') this.ctx.resume(); },
             
-            // Som Padrão (Piano Sintético)
             playTone: function(freq, startTime, duration = 0.5) {
                 const osc1 = this.ctx.createOscillator(); const osc2 = this.ctx.createOscillator(); const gain = this.ctx.createGain();
                 osc1.type = 'triangle'; osc1.frequency.value = freq;
@@ -209,34 +218,20 @@
                 osc1.start(now); osc2.start(now); osc1.stop(now + duration); osc2.stop(now + duration);
             },
 
-            // === A2: VICTORY FANFARE (FANFARRA) ===
             playLevelUpFanfare: function() {
                 this.init();
                 const now = this.ctx.currentTime;
-                
-                // Ritmo: Tã (curto) - Tã (curto) - TÃÃ (longo)
-                // Melodia: Dó (C5) - Mi (E5) - Sol (G5) [Tríade Ascendente]
                 const notes = [
-                    { freq: 523.25, time: now, dur: 0.15 },      // Dó
-                    { freq: 659.25, time: now + 0.15, dur: 0.15 }, // Mi
-                    { freq: 783.99, time: now + 0.3, dur: 0.6 }    // Sol (Longo)
+                    { freq: 523.25, time: now, dur: 0.15 },
+                    { freq: 659.25, time: now + 0.15, dur: 0.15 },
+                    { freq: 783.99, time: now + 0.3, dur: 0.6 }
                 ];
 
                 notes.forEach(n => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    
-                    osc.type = 'sawtooth'; 
-                    osc.frequency.value = n.freq;
-                    
-                    gain.gain.setValueAtTime(0, n.time);
-                    gain.gain.linearRampToValueAtTime(0.15, n.time + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.001, n.time + n.dur);
-                    
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(n.time);
-                    osc.stop(n.time + n.dur);
+                    const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth'; osc.frequency.value = n.freq;
+                    gain.gain.setValueAtTime(0, n.time); gain.gain.linearRampToValueAtTime(0.15, n.time + 0.05); gain.gain.exponentialRampToValueAtTime(0.001, n.time + n.dur);
+                    osc.connect(gain); gain.connect(this.ctx.destination); osc.start(n.time); osc.stop(n.time + n.dur);
                 });
             },
 
@@ -259,43 +254,32 @@
             }
         };
 
-        // === SISTEMA DE PARTÍCULAS REFATORADO ===
         let particles = [];
         class Particle {
             constructor(x, y, color, speedX, speedY, lifeDecay) {
                 this.x = x; this.y = y; this.color = color;
                 this.size = Math.random() * 5 + 2;
-                // Se speed não for passado, gera aleatório (explosão normal)
                 this.speedX = speedX !== undefined ? speedX : Math.random() * 6 - 3;
                 this.speedY = speedY !== undefined ? speedY : Math.random() * 6 - 3;
                 this.life = 1.0;
                 this.lifeDecay = lifeDecay || 0.05;
             }
-            update() { 
-                this.x += this.speedX; 
-                this.y += this.speedY; 
-                this.life -= this.lifeDecay; 
-            }
+            update() { this.x += this.speedX; this.y += this.speedY; this.life -= this.lifeDecay; }
             draw() { 
-                ctx.globalAlpha = Math.max(0, this.life); 
-                ctx.fillStyle = this.color; 
+                ctx.globalAlpha = Math.max(0, this.life); ctx.fillStyle = this.color; 
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
                 ctx.globalAlpha = 1.0; 
             }
         }
         function spawnParticles(x, y, color) { for(let i=0; i<10; i++) particles.push(new Particle(x, y, color)); }
 
-        // === V3: CONFETTI RAIN (CHUVA DE CONFETES) ===
         function spawnConfetti() {
             const colors = ['#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db', '#9b59b6'];
             for(let i=0; i<100; i++) {
                 const x = Math.random() * canvas.width;
-                const y = -10 - (Math.random() * 50); // Começa acima da tela
+                const y = -10 - (Math.random() * 50);
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                const speedX = (Math.random() * 2) - 1; // Leve deriva lateral
-                const speedY = (Math.random() * 5) + 2; // Queda rápida
-                // LifeDecay menor para durar até o chão
-                particles.push(new Particle(x, y, color, speedX, speedY, 0.008));
+                particles.push(new Particle(x, y, color, (Math.random() * 2) - 1, (Math.random() * 5) + 2, 0.008));
             }
         }
 
@@ -363,16 +347,13 @@
             }
             draw() {
                 const y = staffCenterY + ((4 - this.pos) * (lineGap / 2));
-                ctx.save(); 
-                ctx.translate(this.x, y);
-                
+                ctx.save(); ctx.translate(this.x, y);
                 const noteScale = lineGap / 8.7; 
                 ctx.scale(noteScale, noteScale);
                 ctx.fillStyle = this.color;
                 ctx.fill(MusicFont.NOTEHEAD);
                 ctx.restore();
 
-                // === FIX LEDGER LINES (1.1x) ===
                 ctx.lineWidth = 3; ctx.strokeStyle = '#555'; 
                 if (this.pos <= -2) { 
                     const lineY = staffCenterY + ((4 - (-2)) * (lineGap / 2));
@@ -393,11 +374,8 @@
             ctx.strokeStyle = '#555'; ctx.lineWidth = 2; const startY = staffCenterY - (2 * lineGap);
             for(let i=0; i<5; i++) { let y = startY + (i * lineGap); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
             
-            // === CLAVE DE SOL (SÍMBOLO UNICODE) ===
-            ctx.fillStyle = '#2c3e50'; 
-            ctx.font = `${lineGap * 5.5}px serif`; 
-            ctx.textAlign = 'center'; 
-            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#2c3e50'; ctx.font = `${lineGap * 5.5}px serif`; 
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText('𝄞', 50, staffCenterY + (lineGap * 0.8));
 
             ctx.fillStyle = 'rgba(39, 174, 96, 0.1)'; ctx.fillRect(hitZone.start, 0, hitZone.end - hitZone.start, canvas.height);
@@ -435,22 +413,19 @@
             document.getElementById('xp-bar-fill').style.width = progress + '%';
             if (hitsInLevel >= HITS_TO_LEVELUP) {
                 currentLevel++; hitsInLevel = 0; 
+
+                // GA4: Registrar Subida de Nível
+                if(typeof gtag !== 'undefined') {
+                    gtag('event', 'level_up', { 'level': currentLevel });
+                }
+
                 if(currentLevel <= 12) { gameSpeedPPS += 12; spawnIntervalMS -= 40; }
                 let msg = `Nível ${currentLevel}`; let subMsg = "Nova Nota!";
-                
-                // === ALTERAÇÃO 2 (MODO PARTITURA) ===
                 if (currentLevel > 12) subMsg = "Modo Partitura!";
-                
                 if (currentLevel > 17) subMsg = "Mestre Supremo!";
-                
-                // === A2 (FANFARRA) ===
                 AudioEngine.playLevelUpFanfare(); 
-                
                 document.getElementById('xp-bar-fill').style.width = '0%'; 
-                
-                // === V3 (CONFETTI RAIN) ===
                 spawnConfetti();
-                
                 showLevelBanner(msg, subMsg);
             }
         }
@@ -498,6 +473,12 @@
 
         function startGame() {
             enterFullScreen(); AudioEngine.init(); 
+            
+            // GA4: Registrar Início de Jogo
+            if(typeof gtag !== 'undefined') {
+                gtag('event', 'game_start', { 'level': 1 });
+            }
+
             gameState = 'PLAYING'; score = 0; lives = 3; 
             currentLevel = 1; hitsInLevel = 0; gameSpeedPPS = 150; spawnIntervalMS = 2000; 
             document.getElementById('xp-bar-fill').style.width = '0%';
@@ -509,6 +490,15 @@
 
         function endGame() { 
             gameState = 'GAMEOVER'; cancelAnimationFrame(animationId); 
+            
+            // GA4: Registrar Fim de Jogo e Pontuação
+            if(typeof gtag !== 'undefined') {
+                gtag('event', 'game_over', { 
+                    'score': score, 
+                    'level': currentLevel 
+                });
+            }
+
             if (score > highScore) { highScore = score; localStorage.setItem('mestreClave_record', highScore); }
             document.getElementById('final-score').innerText = score; document.getElementById('final-level').innerText = currentLevel;
             document.getElementById('end-highscore').innerText = highScore; document.getElementById('start-highscore').innerText = highScore;
@@ -516,7 +506,6 @@
         }
         function resetGame() { startGame(); }
         
-        // Garante resize inicial correto
         setTimeout(resize, 100);
     </script>
 </body>

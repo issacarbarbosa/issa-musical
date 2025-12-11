@@ -6,8 +6,15 @@
     <!-- Atualizado: Título mais forte e específico -->
     <title>ISSA Musical | Capacitação Orquestral</title>
     
-    <!-- Google Analytics (Espaço reservado para o futuro) -->
-    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=SEU_ID_AQUI"></script> -->
+    <!-- Google Analytics 4 (GA4) - ID: G-LF25LGNKEJ -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF25LGNKEJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-LF25LGNKEJ');
+    </script>
 
     <!-- Fonte e Ícones -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
@@ -121,14 +128,15 @@
         <!-- Atualizado: Subtítulo mais institucional -->
         <div class="brand-subtitle">Capacitação Orquestral</div>
         <h1>ISSA Musical</h1>
-        <!-- Atualizado: Removida a frase de efeito, mantendo apenas a descrição funcional -->
-        <p>Ferramentas de apoio para o desenvolvimento de candidatos, músicos e organistas.</p>
+        <!-- Atualizado: Texto funcional e direto -->
+        <p>Ferramentas de apoio para o aperfeiçoamento de músicos e organistas.</p>
     </header>
 
     <main>
         
         <!-- CARD 1: O JOGO -->
-        <a href="mestre-da-clave/" class="card">
+        <!-- Adicionado evento onClick para o Analytics rastrear quem clica aqui -->
+        <a href="mestre-da-clave/" class="card" onclick="gtag('event', 'select_content', {'content_type': 'game', 'item_id': 'mestre_da_clave'});">
             <span class="badge">Destaque</span>
             <div class="card-header">
                 <i class="fas fa-brain" style="color: #3498db;"></i>
@@ -169,7 +177,7 @@
     </main>
 
     <footer>
-        Desenvolvido por <strong>Issacar Barbosa</strong> • Versão Beta 1.0<br>
+        Desenvolvido por <strong>Issacar Barbosa</strong> • Versão Beta 1.1<br>
         <span style="font-size: 0.8rem; margin-top: 5px; display: block;">Feito com ❤️ para a orquestra</span>
     </footer>
 
