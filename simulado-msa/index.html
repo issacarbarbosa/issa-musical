@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulado MSA | ISSA Musical</title>
+    
+    <!-- Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF25LGNKEJ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-LF25LGNKEJ');
+    </script>
+
+    <!-- Fonte e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Music&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* (Mantendo o CSS base da V6.1) */
+        :root { --primary: #4338ca; --accent: #c5a059; --success: #22c55e; --success-bg: #dcfce7; --error: #ef4444; --error-bg: #fee2e2; --text: #1f2937; --bg: #f3f4f6; --white: #ffffff; --radius: 16px; --locked: #9ca3af; --locked-bg: #f3f4f6; }
+        * { box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .quiz-container { background: var(--white); width: 100%; max-width: 500px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); padding: 24px; position: relative; overflow: hidden; }
+        
+        /* FILTROS E MENU */
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .filter-btn { padding: 15px; border: 2px solid #e5e7eb; border-radius: 12px; background: white; color: var(--text); font-weight: 600; cursor: pointer; transition: all 0.2s; text-align: center; }
+        .filter-btn:hover:not(.disabled) { border-color: var(--primary); background: #eef2ff; }
+        .filter-btn.selected { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        /* ESTILO BLOQUEADO */
+        .filter-btn.disabled { 
+            background: var(--locked-bg); color: var(--locked); border-color: #e5e7eb; 
+            cursor: not-allowed; opacity: 0.7; 
+        }
+        .filter-btn.disabled small { color: var(--locked); }
+        
+        .filter-full { grid-column: span 2; }
+        
+        /* ESTILO DA FÓRMULA DE COMPASSO */
+        .time-sig { display: inline-flex; flex-direction: column; vertical-align: middle; font-family: 'Times New Roman', serif; font-weight: bold; font-size: 0.9em; line-height: 0.8; margin: 0 4px; background: rgba(0,0,0,0.05); padding: 2px 4px; border-radius: 4px; }
+        .time-sig span { display: block; text-align: center; }
+        
+        /* RESTO DA UI */
+        .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .quiz-title { font-size: 0.9rem; font-weight: 600; color: #6b7280; }
+        .btn-close { background: none; border: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer; }
+        .progress-bar-bg { width: 100%; height: 6px; background: #e5e7eb; border-radius: 99px; margin-bottom: 24px; }
+        .progress-bar-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; border-radius: 99px; }
+        .question-text { font-size: 1.25rem; font-weight: 700; margin-bottom: 32px; line-height: 1.4; }
+        .options-grid { display: flex; flex-direction: column; gap: 12px; }
+        .option-btn { background: white; border: 2px solid #e5e7eb; padding: 16px; border-radius: 12px; text-align: left; font-size: 1rem; color: var(--text); font-weight: 500; cursor: pointer; position: relative; display: flex; flex-direction: column; gap: 4px; }
+        .option-btn:hover:not([disabled]) { border-color: var(--primary); background: #eef2ff; }
+        .option-btn.correct { background: var(--success-bg); border-color: var(--success); color: #14532d; }
+        .option-btn.wrong { background: var(--error-bg); border-color: var(--error); color: #7f1d1d; }
+        .btn-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: none; }
+        .option-btn.correct .btn-label { display: block; color: var(--success); }
+        #feedback-area { margin-top: 24px; padding: 16px; background: #f8fafc; border-radius: 12px; animation: slideUp 0.3s ease; }
+        .feedback-label { font-size: 0.85rem; font-weight: 700; margin-bottom: 4px; display: block; }
+        .feedback-label.success { color: var(--success); } .feedback-label.error { color: var(--error); }
+        .feedback-ref { margin-top: 12px; font-size: 0.8rem; color: #6b7280; background: rgba(0,0,0,0.05); padding: 6px 12px; border-radius: 6px; width: fit-content; }
+        .action-btn { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 99px; font-size: 1rem; font-weight: 600; margin-top: 24px; width: 100%; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(67, 56, 202, 0.4); }
+        .action-btn.secondary { background: white; color: var(--text); border: 2px solid #e5e7eb; box-shadow: none; }
+        .action-btn:disabled { opacity: 0.5; cursor: wait; }
+        .result-box { text-align: center; padding: 20px 0; }
+        .score-circle { width: 120px; height: 120px; background: #eef2ff; border-radius: 50%; margin: 0 auto 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .score-number { font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 32px; }
+        .stat-card { background: #f9fafb; padding: 12px; border-radius: 12px; }
+        .stat-val { font-weight: 800; font-size: 1.2rem; display: block; }
+        .stat-val.green { color: var(--success); } .stat-val.red { color: var(--error); }
+        .hidden { display: none; }
+        .nav-back { position: absolute; top: 20px; left: 20px; text-decoration: none; color: var(--primary); font-size: 1.2rem; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        
+        <div id="menu-screen">
+            <h2 style="text-align: center; margin-bottom: 10px;">Configurar Simulado</h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 25px;">Selecione os períodos:</p>
+            <div class="filter-grid">
+                <!-- PERÍODO 1 (ATIVO) -->
+                <div class="filter-btn selected" onclick="togglePeriod(1, this)">Período 1<br><small>Fases 1 a 3</small></div>
+                
+                <!-- PERÍODOS BLOQUEADOS -->
+                <div class="filter-btn disabled">Período 2<br><small><i class="fas fa-lock"></i> Em breve</small></div>
+                <div class="filter-btn disabled">Período 3<br><small><i class="fas fa-lock"></i> Em breve</small></div>
+                <div class="filter-btn disabled">Período 4<br><small><i class="fas fa-lock"></i> Em breve</small></div>
+                
+                <!-- SELECIONAR TODOS (BLOQUEADO POIS SÓ TEM 1) -->
+                <div class="filter-btn filter-full disabled" style="opacity:0.5">Selecionar Todos</div>
+            </div>
+            <button id="start-btn" class="action-btn" onclick="prepareAndStart()">Iniciar Prova</button>
+            <a href="../index.html" class="action-btn secondary" style="text-align:center; display:block; text-decoration:none; margin-top:12px;">Voltar</a>
+        </div>
+
+        <div id="quiz-screen" class="hidden">
+            <div class="header-bar">
+                <span class="quiz-title" id="quiz-header">Carregando...</span>
+                <button class="btn-close" onclick="location.reload()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-bar"></div></div>
+            <div class="question-text" id="q-text"></div>
+            <div class="options-grid" id="options-container"></div>
+            <div id="feedback-area" class="hidden">
+                <span class="feedback-label" id="fb-label"></span>
+                <p class="feedback-content" id="fb-text"></p>
+                <div class="feedback-ref" id="fb-ref"></div>
+            </div>
+            <button id="next-btn" class="action-btn hidden" onclick="nextQuestion()">Próxima</button>
+            <button id="review-controls" class="action-btn secondary hidden" onclick="showResults()">Sair da Revisão</button>
+        </div>
+
+        <div id="result-screen" class="hidden result-box">
+            <h2>Resultado</h2>
+            <div class="score-circle"><span class="score-number" id="final-score">0%</span><span class="score-label">Acerto</span></div>
+            <div class="stats-grid">
+                <div class="stat-card"><span class="stat-val green" id="stat-correct">0</span><span>Acertos</span></div>
+                <div class="stat-card"><span class="stat-val red" id="stat-wrong">0</span><span>Erros</span></div>
+            </div>
+            <p id="final-msg" style="margin-bottom: 24px; color: #6b7280;"></p>
+            <button class="action-btn secondary" onclick="startReviewMode()">Revisar Erros</button>
+            <button class="action-btn" onclick="location.reload()">Novo Teste</button>
+        </div>
+    </div>
+
+    <script>
+        window.bancoQuestoes = []; 
+        let selectedPeriods = [1]; // Padrão: Período 1 selecionado
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let shuffledQuestions = [];
+        let userAnswers = [];
+        let isReviewMode = false;
+        let canAnswer = true;
+
+        const periodMap = {
+            1: ['q_f01.js', 'q_f02.js', 'q_f03.js'],
+            // Outros períodos comentados para segurança
+            // 2: ['q_f04.js', 'q_f05.js'],
+            // 3: ['q_f06.js', 'q_f07.js', 'q_f08.js', 'q_f09.js'],
+            // 4: ['q_f10.js', 'q_f11.js', 'q_f12.js', 'q_f13.js', 'q_f14.js', 'q_f15.js', 'q_f16.js']
+        };
+
+        // --- FORMATADOR DE COMPASSO ---
+        function formatMusicText(text) {
+            return text.replace(/(\d{1,2})\/(\d{1,2})/g, function(match, num, den) {
+                return `<span class="time-sig"><span>${num}</span><span>${den}</span></span>`;
+            });
+        }
+
+        async function loadScripts(scripts) {
+            const promises = scripts.map(scriptName => {
+                return new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = scriptName;
+                    script.onload = resolve;
+                    script.onerror = () => { console.warn(`Arquivo ${scriptName} não encontrado.`); resolve(); };
+                    document.body.appendChild(script);
+                });
+            });
+            return Promise.all(promises);
+        }
+
+        async function prepareAndStart() {
+            const btn = document.getElementById('start-btn');
+            btn.innerText = "Carregando...";
+            btn.disabled = true;
+
+            let filesToLoad = [];
+            selectedPeriods.forEach(p => { if (periodMap[p]) filesToLoad = filesToLoad.concat(periodMap[p]); });
+
+            await loadScripts(filesToLoad);
+
+            if (!window.bancoQuestoes || window.bancoQuestoes.length === 0) {
+                alert("Nenhuma questão encontrada para o Período 1. Verifique se os arquivos q_f01.js, q_f02.js e q_f03.js existem na pasta.");
+                btn.innerText = "Iniciar Prova";
+                btn.disabled = false;
+                return;
+            }
+            startQuiz();
+        }
+
+        function togglePeriod(p, btn) {
+            // Função simplificada: Como só temos o período 1 ativo, não permitimos desmarcar nem marcar outros
+            if (p === 1) return; // Não faz nada se clicar no 1 (já está selecionado)
+            
+            // Se tentasse clicar em outros (caso removêssemos o 'disabled' no HTML)
+            alert("Este período estará disponível em breve!");
+        }
+
+        function toggleAll(btn) {
+            // Desativado por enquanto
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startQuiz() {
+            const activeQuestions = window.bancoQuestoes.filter(q => q.ativo !== false);
+            shuffledQuestions = shuffleArray([...activeQuestions]).slice(0, 20);
+            shuffledQuestions.forEach(q => {
+                if(!q.shuffledOptions) q.shuffledOptions = shuffleArray([...q.opcoes]);
+            });
+
+            currentQuestionIndex = 0; score = 0; userAnswers = []; isReviewMode = false;
+            document.getElementById('menu-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = shuffledQuestions[currentQuestionIndex];
+            canAnswer = !isReviewMode;
+
+            // APLICA O FORMATADOR AQUI
+            document.getElementById('q-text').innerHTML = formatMusicText(q.pergunta); // Use innerHTML para renderizar o span
+            
+            document.getElementById('quiz-header').innerText = isReviewMode ? 'Revisão' : `Questão ${currentQuestionIndex + 1} de ${shuffledQuestions.length}`;
+            document.getElementById('progress-bar').style.width = `${(isReviewMode ? 100 : ((currentQuestionIndex) / shuffledQuestions.length) * 100)}%`;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            document.getElementById('feedback-area').classList.add('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('review-controls').classList.add('hidden');
+
+            q.shuffledOptions.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                // APLICA FORMATADOR NAS OPÇÕES TAMBÉM
+                btn.innerHTML = `<span class="btn-label"><i class="fas fa-check"></i> Resposta Correta</span><span>${formatMusicText(opt.texto)}</span>`;
+                
+                if (!isReviewMode) btn.onclick = () => checkAnswer(btn, opt, q);
+                optsContainer.appendChild(btn);
+
+                if (isReviewMode) {
+                    const answer = userAnswers[currentQuestionIndex];
+                    if (opt.correta) btn.classList.add('correct');
+                    if (answer && !answer.isCorrect && answer.selectedText === opt.texto) btn.classList.add('wrong');
+                    if (answer && answer.selectedText === opt.texto) showFeedback(opt, q, answer.isCorrect);
+                }
+            });
+
+            if (isReviewMode) {
+                document.getElementById('next-btn').innerText = (currentQuestionIndex === shuffledQuestions.length - 1) ? "Finalizar Revisão" : "Próxima Questão";
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('next-btn').onclick = nextQuestion;
+                document.getElementById('review-controls').classList.remove('hidden');
+            }
+        }
+
+        function checkAnswer(btn, opt, q) {
+            if (!canAnswer) return;
+            canAnswer = false;
+            const isCorrect = opt.correta === true;
+            if (isCorrect) score++;
+            userAnswers.push({ qId: q.id, selectedText: opt.texto, isCorrect: isCorrect });
+
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+            if (!isCorrect) {
+                const allBtns = document.querySelectorAll('.option-btn');
+                allBtns.forEach(b => {
+                    // Comparação bruta de texto pode falhar com HTML injetado, melhor buscar pelo objeto
+                    // Mas como o embaralhamento é consistente, podemos confiar na lógica visual
+                    if (b.innerHTML.includes(formatMusicText(q.shuffledOptions.find(o => o.correta).texto))) b.classList.add('correct');
+                    b.disabled = true;
+                });
+            }
+            showFeedback(opt, q, isCorrect);
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.innerText = (currentQuestionIndex === shuffledQuestions.length - 1) ? "Ver Resultado" : "Próxima";
+            nextBtn.classList.remove('hidden');
+            nextBtn.onclick = nextQuestion;
+        }
+
+        function showFeedback(opt, q, isCorrect) {
+            const label = document.getElementById('fb-label');
+            label.innerText = isCorrect ? "Isso mesmo!" : "Não é bem isso...";
+            label.className = `feedback-label ${isCorrect ? 'success' : 'error'}`;
+            // FORMATADOR NO FEEDBACK
+            document.getElementById('fb-text').innerHTML = formatMusicText(opt.feedback);
+            document.getElementById('fb-ref').innerHTML = `<i class="fas fa-book"></i> MSA Pág. ${q.referencia.pagina} (Item ${q.referencia.item})`;
+            document.getElementById('feedback-area').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < shuffledQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else { showResults(); }
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+            const percentage = Math.round((score / shuffledQuestions.length) * 100);
+            document.getElementById('final-score').innerText = `${percentage}%`;
+            document.getElementById('stat-correct').innerText = score;
+            document.getElementById('stat-wrong').innerText = shuffledQuestions.length - score;
+            let msg = percentage >= 70 ? "Parabéns! Ótimo desempenho." : "Continue estudando, você consegue!";
+            document.getElementById('final-msg').innerText = msg;
+        }
+
+        function startReviewMode() {
+            isReviewMode = true; currentQuestionIndex = 0;
+            document.getElementById('result-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            renderQuestion();
+        }
+    </script>
+</body>
+</html>
