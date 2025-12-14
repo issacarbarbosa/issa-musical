@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulado MSA | Issa Academy</title>
     
     <!-- Analytics -->
@@ -52,8 +52,6 @@
             margin: 0; padding: 0; 
             min-height: 100vh; 
             display: flex; flex-direction: column; 
-            /* Evita seleção de texto no mobile para parecer app */
-            user-select: none;
         }
 
         /* HEADER SIMPLES */
@@ -362,7 +360,7 @@
 
         <div class="mascot-area">
             <div id="fufu-img" class="fufu-avatar">🐱</div>
-            <div id="fufu-speech" class="speech-bubble">Vamos lá, Issa! Qual é a resposta?</div>
+            <div id="fufu-speech" class="speech-bubble">Vamos aprender um pouquinho mais hoje?</div>
         </div>
 
         <div class="quiz-content">
@@ -419,18 +417,33 @@
     </div>
 
     <script>
-        // === CONFIGURAÇÃO DO FUFU ===
+        // === CONFIGURAÇÃO DO FUFU AMOROSO (v1.5) ===
         const FUFU_STATES = {
             NEUTRAL: { type: 'emoji', content: '🐱' }, 
             HAPPY:   { type: 'emoji', content: '😺' },
-            SAD:     { type: 'emoji', content: '😾' },
-            JUDGE:   { type: 'emoji', content: '😼' }
+            SAD:     { type: 'emoji', content: '😿' }, // Gato com compaixão
+            JUDGE:   { type: 'emoji', content: '🐱' } // Gato neutro atento
         };
 
         const FUFU_PHRASES = {
-            START: ["Vamos nessa!", "Mostre o que sabe!", "Afinação, maestro!", "Foco total!"],
-            CORRECT: ["Miau! Isso aí!", "Perfeito!", "Orgulho do Fufu!", "Na mosca!"],
-            WRONG: ["Hiss... errou.", "Essa doeu no ouvido.", "Preste atenção!", "Miauuu (Não!)"]
+            START: [
+                "Vamos aprender um pouquinho mais hoje?", 
+                "Estou aqui do seu lado. Vamos estudar com alegria!", 
+                "Que bom te ver aqui, músico! O MSA nos espera.", 
+                "Prepare o coração e a mente. Vamos lá?"
+            ],
+            CORRECT: [
+                "Que maravilha! Você está indo muito bem.", 
+                "Miau! Que som agradável de acerto!", 
+                "Isso mesmo! Seu esforço está dando frutos.", 
+                "Glória! Mais um passo na sua jornada."
+            ],
+            WRONG: [
+                "Não desanime! É errando que a gente aprende.", 
+                "Calma, respire. Vamos rever isso juntos?", 
+                "Ainda não. Mas na próxima você acerta!", 
+                "Não fique triste. O estudo exige paciência mesmo."
+            ]
         };
 
         window.bancoQuestoes = []; 
@@ -706,7 +719,7 @@
             const percentage = Math.round((score / currentQuestions.length) * 100);
             document.getElementById('final-percent').innerText = percentage + "%";
 
-            // FEEDBACK DO FUFU
+            // FEEDBACK DO FUFU (Misericordioso)
             const fufuImg = document.getElementById('fufu-result-img');
             const resultMsg = document.getElementById('result-msg');
             
@@ -718,10 +731,10 @@
                 resultMsg.innerText = "Muito bom! Quase lá.";
             } else if (percentage >= 50) {
                 fufuImg.innerText = '😸';
-                resultMsg.innerText = "Bom esforço, mas vamos revisar?";
+                resultMsg.innerText = "Bom esforço! Continue estudando que vai dar certo.";
             } else {
-                fufuImg.innerText = '🙀';
-                resultMsg.innerText = "Ouch! O Fufu recomenda mais estudo.";
+                fufuImg.innerText = '😿';
+                resultMsg.innerText = "O início é trabalhoso mesmo. Não desista!";
             }
 
             // LISTA DE REVISÃO (SE HOUVER ERROS)

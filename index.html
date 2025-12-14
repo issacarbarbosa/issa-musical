@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Issa Academy | Capacitação Musical</title>
+    <title>Issa Academy | Aprenda Música</title>
     
-    <!-- Google Analytics 4 (GA4) -->
+    <!-- Meta Tags para Redes Sociais (Open Graph) -->
+    <meta property="og:title" content="Issa Academy | Aprenda Música">
+    <meta property="og:description" content="Plataforma de ensino musical gamificada. Mestre da Clave, Simulado MSA e muito mais.">
+    <meta property="og:image" content="assets/og-image.png"> <!-- Crie esta imagem na pasta assets -->
+    <meta property="og:url" content="https://issacarbarbosa.github.io/issa-academy/">
+    <meta property="og:type" content="website">
+    
+    <!-- Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF25LGNKEJ"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-LF25LGNKEJ');
     </script>
 
@@ -25,167 +31,224 @@
     </script>
 
     <!-- Fonte e Ícones -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        :root {
+            /* Design System Issa Academy v3 (Clean App) */
+            --brand-blue: #1a3c5a;
+            --brand-gold: #c5a059;
+            
+            --bg-body: #ffffff;
+            --bg-surface: #f7f9fa;
+            
+            /* Cores Juicy */
+            --color-blue: #1cb0f6; --shade-blue: #1899d6;
+            --color-green: #58cc02; --shade-green: #58a700;
+            --color-purple: #ce82ff; --shade-purple: #a568cc;
+            --color-gray: #e5e5e5;  --shade-gray: #cecece;
+            
+            --text-main: #4b4b4b;
+            --text-light: #afafaf;
+            
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body {
-            background-color: #f4f6f8;
-            color: #2c3e50;
+            background-color: var(--bg-body);
+            color: var(--text-main);
             display: flex; flex-direction: column; min-height: 100vh;
+            padding-top: 70px; /* Espaço para o header fixo */
         }
 
-        /* CABEÇALHO - Atualizado para Issa Academy */
-        header {
-            background: linear-gradient(135deg, #1a3c5a 0%, #2c5270 100%);
-            color: white;
-            padding: 50px 20px;
-            text-align: center;
-            border-bottom: 6px solid #c5a059;
-            box-shadow: 0 4px 25px rgba(0,0,0,0.15);
+        /* HEADER FIXO (Estilo Duolingo/App) */
+        .app-header {
+            position: fixed; top: 0; left: 0; width: 100%;
+            height: 70px;
+            background: white;
+            border-bottom: 2px solid var(--color-gray);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1000;
         }
 
-        header i { font-size: 3.5rem; margin-bottom: 15px; color: #c5a059; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        header .brand-subtitle { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 3px; color: #ecf0f1; margin-bottom: 5px; opacity: 0.8; }
-        header h1 { font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin: 0 0 10px 0; }
-        header p { font-size: 1.2rem; font-weight: 300; opacity: 0.9; max-width: 600px; margin: 0 auto; line-height: 1.5; }
+        .logo-container {
+            display: flex; align-items: center; gap: 8px; /* Espaço entre texto e ícone */
+            text-decoration: none;
+        }
 
-        /* GRID DE CONTEÚDO */
+        /* LOGO APENAS TEXTO */
+        .logo-text {
+            font-size: 1.4rem; font-weight: 800; color: var(--brand-blue);
+            letter-spacing: -0.5px;
+        }
+        
+        /* ÍCONE LOGO */
+        .logo-icon {
+            font-size: 1.5rem; color: var(--brand-blue);
+        }
+
+        /* MENU ICON (Futuro) */
+        .menu-icon {
+            font-size: 1.5rem; color: var(--color-gray);
+            cursor: pointer; transition: color 0.2s;
+        }
+        .menu-icon:hover { color: var(--brand-blue); }
+
+        /* BOAS VINDAS (Clean) */
+        .welcome-section {
+            padding: 30px 20px 10px;
+            text-align: left;
+            max-width: 600px; margin: 0 auto; width: 100%;
+            display: flex; align-items: center; gap: 15px;
+        }
+        
+        .mascot-head { font-size: 50px; animation: float 3s infinite ease-in-out; }
+        
+        .welcome-text h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0; line-height: 1.2; }
+        .welcome-text p { font-size: 1rem; color: #777; margin: 5px 0 0; font-weight: 600; line-height: 1.4; }
+
+        /* GRID DE CARDS */
         main {
             flex: 1;
-            max-width: 1200px; margin: 0 auto; width: 100%;
-            padding: 40px 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
+            max-width: 600px; margin: 0 auto; width: 100%;
+            padding: 20px;
+            display: flex; flex-direction: column; gap: 16px;
         }
 
-        /* CARTÕES (CARDS) */
-        .card {
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-            border: 2px solid transparent;
-            display: flex; flex-direction: column;
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        /* CARD ESTILO APP */
+        .app-card {
+            background: var(--bg-surface);
+            border: 2px solid var(--color-gray);
+            border-radius: var(--radius);
+            padding: 20px;
+            display: flex; align-items: center; gap: 16px;
+            text-decoration: none; color: inherit;
+            transition: all 0.1s;
+            position: relative; overflow: hidden;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(26, 60, 90, 0.15);
-            border-color: #c5a059;
+        .app-card:active { transform: scale(0.98); background: #f0f0f0; }
+
+        .card-icon {
+            width: 60px; height: 60px; flex-shrink: 0;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: white;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
         }
 
-        .card-header {
-            background: #f8f9fa;
-            height: 160px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 4.5rem; color: #1a3c5a;
-            position: relative;
-            transition: background 0.3s;
-        }
-        .card:hover .card-header { background: #fff8e1; }
+        .card-info { flex: 1; }
+        .card-title { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
+        .card-desc { font-size: 0.9rem; color: #888; font-weight: 600; line-height: 1.3; }
+
+        /* Variações */
+        .card-blue .card-icon { background: var(--color-blue); }
+        .card-green .card-icon { background: var(--color-green); }
+        .card-purple .card-icon { background: var(--color-purple); }
         
-        .card-body { padding: 30px; text-align: center; flex: 1; display: flex; flex-direction: column; }
-        
-        .card h2 { color: #1a3c5a; font-size: 1.6rem; margin-bottom: 10px; font-weight: 700; }
-        .card p { color: #666; font-size: 1rem; line-height: 1.6; margin-bottom: 25px; flex: 1; }
+        .card-locked { opacity: 0.6; pointer-events: none; filter: grayscale(100%); }
+        .card-locked .card-icon { background: #ccc; }
 
-        .btn-card {
-            background: #1a3c5a; color: white;
-            padding: 15px 0; border-radius: 50px;
-            font-weight: 600; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;
-            transition: all 0.2s;
-            box-shadow: 0 4px 10px rgba(26, 60, 90, 0.2);
+        /* Badge Novo */
+        .badge-new {
+            background: var(--color-green); color: white;
+            font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 10px;
+            text-transform: uppercase; margin-left: 8px; vertical-align: middle;
         }
-        .card:hover .btn-card { background: #c5a059; color: #1a3c5a; transform: scale(1.05); }
-
-        /* TAGS */
-        .badge {
-            position: absolute; top: 20px; right: 20px;
-            background: #c5a059; color: #1a3c5a;
-            font-size: 0.8rem; font-weight: 800;
-            padding: 6px 14px; border-radius: 30px;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        /* CARD BLOQUEADO */
-        .card.locked { opacity: 0.6; pointer-events: none; filter: grayscale(90%); }
-        .card.locked .badge { background: #95a5a6; color: white; }
 
         footer { 
-            text-align: center; padding: 40px 20px; color: #7f8c8d; 
-            font-size: 0.9rem; margin-top: auto; border-top: 1px solid #eee;
+            text-align: center; padding: 30px 20px; color: #ccc;
+            font-size: 0.8rem; font-weight: 700;
         }
-        footer strong { color: #1a3c5a; }
         
+        .social-links {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .social-link {
+            color: #ccc;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .social-link:hover {
+            color: var(--brand-blue);
+        }
+
+        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <i class="fas fa-graduation-cap"></i>
-        <!-- Rebranding para Issa Academy -->
-        <div class="brand-subtitle">Ensino Musical & Propósito</div>
-        <h1>Issa Academy</h1>
-        <p>Ferramentas de excelência para o aperfeiçoamento de músicos e organistas.</p>
+    <!-- HEADER FIXO -->
+    <header class="app-header">
+        <a href="#" class="logo-container">
+            <!-- Logo Icon (Capelo) à Esquerda -->
+            <i class="fas fa-graduation-cap logo-icon"></i>
+            <span class="logo-text">Issa Academy</span>
+        </a>
+        <div class="menu-icon"><i class="fas fa-bars"></i></div>
     </header>
 
+    <!-- BOAS VINDAS -->
+    <div class="welcome-section">
+        <div class="mascot-head">😺</div>
+        <div class="welcome-text">
+            <h2>Miau! Eu sou o Fufu.</h2>
+            <p>Sou o gatinho do Issa Academy! O que vamos treinar hoje?</p>
+        </div>
+    </div>
+
+    <!-- CONTEÚDO -->
     <main>
         
         <!-- CARD 1: MESTRE DA CLAVE -->
-        <a href="mestre-da-clave/" class="card" onclick="gtag('event', 'select_content', {'content_type': 'game', 'item_id': 'mestre_da_clave'});">
-            <span class="badge">Destaque</span>
-            <div class="card-header">
-                <i class="fas fa-brain" style="color: #3498db;"></i>
+        <a href="mestre-da-clave/" class="app-card card-blue" onclick="gtag('event', 'select_content', {'content_type': 'game', 'item_id': 'mestre_da_clave'});">
+            <div class="card-icon"><i class="fas fa-gamepad"></i></div>
+            <div class="card-info">
+                <div class="card-title">Mestre da Clave</div>
+                <div class="card-desc">Leitura rápida e reflexo</div>
             </div>
-            <div class="card-body">
-                <h2>Mestre da Clave</h2>
-                <p>Ferramenta de fixação para leitura musical. Progressão por níveis, autonomia visual gradual e histórico de desempenho.</p>
-                <div class="btn-card">Iniciar Treino</div>
-            </div>
+            <i class="fas fa-chevron-right" style="color: #ddd;"></i>
         </a>
 
         <!-- CARD 2: SIMULADO MSA -->
-        <a href="simulado-msa/" class="card" onclick="gtag('event', 'select_content', {'content_type': 'quiz', 'item_id': 'simulado_msa'});">
-            <span class="badge" style="background: #27ae60; color: white;">Novo</span>
-            <div class="card-header">
-                <i class="fas fa-book-open" style="color: #9b59b6;"></i>
+        <a href="simulado-msa/" class="app-card card-green" onclick="gtag('event', 'select_content', {'content_type': 'quiz', 'item_id': 'simulado_msa'});">
+            <!-- Ícone alterado para Prancheta/Lista -->
+            <div class="card-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="card-info">
+                <div class="card-title">Simulado MSA <span class="badge-new">NOVO</span></div>
+                <div class="card-desc">Teoria e questões de prova</div>
             </div>
-            <div class="card-body">
-                <h2>Simulado MSA</h2>
-                <p>Avaliação preparatória para a oficialização. Questões fundamentadas no novo método (MSA) para consolidar a teoria.</p>
-                <div class="btn-card">Iniciar Avaliação</div>
-            </div>
+            <i class="fas fa-chevron-right" style="color: #ddd;"></i>
         </a>
 
-        <!-- CARD 3: EM BREVE -->
-        <div class="card locked">
-            <span class="badge">Em Breve</span>
-            <div class="card-header">
-                <i class="fas fa-video" style="color: #e74c3c;"></i>
+        <!-- CARD 3: AULAS (BLOQUEADO) -->
+        <div class="app-card card-locked">
+            <div class="card-icon"><i class="fas fa-video"></i></div>
+            <div class="card-info">
+                <div class="card-title">Aulas & Técnica</div>
+                <div class="card-desc">Em breve</div>
             </div>
-            <div class="card-body">
-                <!-- Alterado para remover termos que impliquem custo -->
-                <h2>Aulas & Técnica</h2>
-                <p>Videoaulas, exercícios e materiais de apoio para músicos e organistas.</p>
-                <div class="btn-card">Aguarde</div>
-            </div>
+            <i class="fas fa-lock" style="color: #ccc;"></i>
         </div>
 
     </main>
 
     <footer>
-        Desenvolvido por <strong>Issacar Barbosa</strong> • Issa Academy v1.3<br>
-        <span style="font-size: 0.8rem; margin-top: 5px; display: block;">Feito com ❤️ para a orquestra</span>
+        Issa Academy v1.5 • Feito com ❤️ por Issacar Barbosa
+        <div class="social-links">
+            <a href="https://www.instagram.com/issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.youtube.com/@issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-youtube"></i></a>
+        </div>
     </footer>
 
 </body>

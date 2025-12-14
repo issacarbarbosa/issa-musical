@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Atualizado Título -->
     <title>Mestre da Clave | Issa Academy</title>
 
-    <!-- Google Analytics 4 (GA4) -->
+    <!-- Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LF25LGNKEJ"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -24,24 +23,39 @@
         })(window, document, "clarity", "script", "ujlb9c5vzi");
     </script>
 
-    <!-- Ícones (FontAwesome) -->
+    <!-- Fonte (Atualizada para Nunito) e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+        /* === DESIGN SYSTEM V2 (Gamified) === */
+        :root {
+            --brand-blue: #1a3c5a;
+            --brand-gold: #c5a059;
+            --btn-green: #58cc02; --shade-green: #58a700;
+            --btn-red: #ff4b4b;   --shade-red: #ea2b2b;
+            --btn-blue: #1cb0f6;  --shade-blue: #1899d6;
+            --btn-gray: #e5e5e5;  --shade-gray: #cecece;
+            --white: #ffffff;
+            --text-main: #4b4b4b;
+            --radius: 16px;
+        }
+
         * { box-sizing: border-box; touch-action: manipulation; } 
 
         body {
-            margin: 0; padding: 0; background-color: #1e272e; font-family: 'Poppins', sans-serif;
+            margin: 0; padding: 0; 
+            /* Fundo escuro mantido para contraste do jogo, mas suavizado */
+            background: radial-gradient(circle at center, #2c3e50 0%, #1a252f 100%);
+            font-family: 'Nunito', sans-serif;
             overflow: hidden; width: 100vw; height: 100vh; color: #333; user-select: none;
             display: flex; flex-direction: column;
-            background: radial-gradient(circle at center, #2c3e50 0%, #000 100%);
         }
 
         /* TELA DE ROTAÇÃO */
         #rotate-message {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #2c3e50; color: white; z-index: 9999;
+            background: var(--brand-blue); color: white; z-index: 9999;
             flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;
         }
         @media screen and (orientation: portrait) {
@@ -54,12 +68,13 @@
             flex: 1; display: flex; flex-direction: column; 
             width: 100%; height: 100%;
             max-width: 850px; margin: 0 auto; 
+            /* Fundo Papel Suave */
             background: radial-gradient(circle, #fdf6e3 0%, #f0e4d0 100%);
             box-shadow: 0 0 50px rgba(0,0,0,0.5); position: relative;
         }
 
-        #xp-bar-container { width: 100%; height: 6px; background: rgba(0,0,0,0.1); position: absolute; top: 0; left: 0; z-index: 20; }
-        #xp-bar-fill { height: 100%; width: 0%; background: #27ae60; transition: width 0.3s; }
+        #xp-bar-container { width: 100%; height: 8px; background: rgba(0,0,0,0.1); position: absolute; top: 0; left: 0; z-index: 20; }
+        #xp-bar-fill { height: 100%; width: 0%; background: var(--btn-green); transition: width 0.3s; box-shadow: 0 0 10px var(--btn-green); }
 
         #game-area { 
             flex: 1; position: relative; width: 100%; overflow: hidden; 
@@ -67,89 +82,128 @@
         }
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* HUD E BOTÕES DE NAVEGAÇÃO */
+        /* HUD E NAVEGAÇÃO (Atualizados para V2) */
         .nav-btn {
             position: absolute; top: 15px; z-index: 60;
-            background: rgba(255,255,255,0.9); border: none;
+            background: rgba(255,255,255,0.95); border: none;
             width: 45px; height: 45px; border-radius: 50%;
-            color: #2c3e50; font-size: 1.2rem; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            color: var(--brand-blue); font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.1);
             display: flex; justify-content: center; align-items: center;
-            transition: transform 0.2s;
+            transition: transform 0.1s;
             text-decoration: none;
         }
-        .nav-btn:active { transform: scale(0.9); }
+        .nav-btn:active { transform: translateY(2px); box-shadow: none; }
         .nav-btn.disabled { opacity: 0.5; pointer-events: none; filter: grayscale(100%); }
 
         #btn-back { left: 15px; }
         #btn-pause { right: 15px; font-size: 1rem; flex-direction: column; gap: 0px; line-height: 1; }
-        #btn-pause span { font-size: 0.6rem; font-weight: 800; color: #e74c3c; margin-top: 2px; }
+        #btn-pause span { font-size: 0.6rem; font-weight: 800; color: var(--btn-red); margin-top: 2px; }
 
         #hud { 
             position: absolute; top: 15px; left: 0; right: 0; 
-            display: flex; justify-content: center; gap: 15px; align-items: center;
+            display: flex; justify-content: center; gap: 10px; align-items: center;
             pointer-events: none; z-index: 50; 
         }
         .hud-pill { 
-            background: rgba(255,255,255,0.95); padding: 5px 12px; border-radius: 15px; 
-            font-weight: bold; font-size: 1.1rem; color: #2c3e50; border: 1px solid #2c3e50; 
-            display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background: rgba(255,255,255,0.9); padding: 5px 15px; border-radius: 20px; 
+            font-weight: 800; font-size: 1.1rem; color: var(--text-main); 
+            border-bottom: 3px solid #ccc; /* Estilo Juicy sutil */
+            display: flex; align-items: center; gap: 6px; 
         }
-        .level-badge { background: #f1c40f; color: #2c3e50; padding: 0 6px; border-radius: 8px; font-size: 0.9rem; }
+        .level-badge { background: var(--brand-gold); color: white; padding: 0 8px; border-radius: 8px; font-size: 0.9rem; }
 
-        /* CONTROLES (PIANO) */
+        /* CONTROLES (PIANO GAMIFICADO) */
         #controls-container {
             flex: 0 0 auto; height: auto; background: #34495e;
             display: flex; flex-direction: column; justify-content: center;
             padding: 10px 5px 15px 5px; gap: 5px;
             box-shadow: 0 -4px 10px rgba(0,0,0,0.3); z-index: 60;
         }
-        #notes-row { display: flex; gap: 4px; height: 55px; }
+        #notes-row { display: flex; gap: 4px; height: 60px; } /* Altura levemente maior */
         
         .note-btn {
-            flex: 1; background: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
-            border: none; border-radius: 6px; font-family: 'Poppins', sans-serif; font-weight: bold; font-size: 1rem;
-            color: #2c3e50; cursor: pointer; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); transition: transform 0.1s;
+            flex: 1; background: var(--white);
+            border: none; border-bottom: 5px solid #bdc3c7; /* Borda 3D */
+            border-radius: 10px; 
+            font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1.1rem;
+            color: var(--text-main); cursor: pointer; 
+            transition: transform 0.1s;
         }
-        .note-btn:active { background: #95a5a6; transform: translateY(2px); }
+        .note-btn:active { transform: translateY(4px); border-bottom-width: 1px; background: #f0f0f0; }
 
-        .btn-do { border-bottom: 4px solid #e74c3c; color: #c0392b; } 
-        .btn-re { border-bottom: 4px solid #e67e22; color: #d35400; }
-        .btn-mi { border-bottom: 4px solid #b7950b; color: #7d6608; } 
-        .btn-fa { border-bottom: 4px solid #2ecc71; color: #27ae60; }
-        .btn-sol { border-bottom: 4px solid #3498db; color: #2980b9; } 
-        .btn-la { border-bottom: 4px solid #9b59b6; color: #8e44ad; }
-        .btn-si { border-bottom: 4px solid #00d2d3; color: #008c9e; }
+        /* Cores das Notas (Estilo V2) */
+        .btn-do { color: #e74c3c; border-bottom-color: #c0392b; } 
+        .btn-re { color: #e67e22; border-bottom-color: #d35400; }
+        .btn-mi { color: #f1c40f; border-bottom-color: #f39c12; } 
+        .btn-fa { color: #2ecc71; border-bottom-color: #27ae60; }
+        .btn-sol { color: #3498db; border-bottom-color: #2980b9; } 
+        .btn-la { color: #9b59b6; border-bottom-color: #8e44ad; }
+        .btn-si { color: #e84393; border-bottom-color: #c03676; } /* Si Rosa */
 
-        /* OVERLAYS (MODAIS) */
+        /* === NOVOS OVERLAYS (ESTILO DUOLINGO) === */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(44, 62, 80, 0.98); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999; text-align: center; color: white;
+            background: rgba(19, 31, 36, 0.95); /* Fundo escuro focado */
+            backdrop-filter: blur(5px);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999; 
+            padding: 20px;
             transition: opacity 0.3s;
-        }
-        .pause-overlay {
-            background: rgba(44, 62, 80, 0.95);
-            backdrop-filter: blur(10px);
-            z-index: 9998;
+            /* Habilita rolagem se a tela for muito pequena (paisagem) */
+            overflow-y: auto;
         }
         .hidden { display: none !important; opacity: 0; pointer-events: none; }
-        
-        h1 { font-size: 2rem; margin: 0 0 10px 0; color: #f1c40f; }
-        p { font-size: 1.1rem; max-width: 80%; margin-bottom: 20px; color: #ecf0f1; }
-        .highscore-text { font-size: 0.9rem; color: #bdc3c7; margin-top: 10px; font-weight: 300; }
 
-        .btn-primary { 
-            padding: 15px 50px; font-size: 1.3rem; background-color: #27ae60; 
-            color: white; border: none; border-radius: 50px; cursor: pointer; 
-            box-shadow: 0 4px 0 #1e8449; animation: pulse 2s infinite; margin-top: 10px;
-        }
-        .btn-secondary {
-             padding: 10px 30px; font-size: 1rem; background-color: #e74c3c; 
-             color: white; border: none; border-radius: 30px; cursor: pointer; margin-top: 15px;
-             text-decoration: none; display: inline-block;
+        /* Card Central Branco */
+        .modal-card {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 24px;
+            text-align: center;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 10px 0 rgba(0,0,0,0.2);
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* Garante margem para rolagem em telas pequenas */
+            margin: auto; 
         }
 
+        /* Ajuste para telas baixas (Paisagem no celular) */
+        @media (max-height: 500px) {
+            .overlay {
+                display: block; /* Remove flex para permitir scroll nativo correto */
+                text-align: center;
+            }
+            .modal-card {
+                margin-top: 20px;
+                margin-bottom: 20px;
+            }
+        }
+
+        .modal-title { font-size: 2rem; font-weight: 900; color: var(--brand-gold); margin: 10px 0; letter-spacing: -1px; }
+        .modal-text { font-size: 1.1rem; color: #666; margin-bottom: 25px; line-height: 1.5; font-weight: 600; }
+        .highscore-text { font-size: 0.9rem; color: #999; font-weight: 700; text-transform: uppercase; margin-top: 15px; }
+
+        .fufu-avatar { font-size: 80px; margin-bottom: 10px; display: block; animation: float 3s infinite ease-in-out; }
+
+        /* Botões de Ação Juicy */
+        .btn-action {
+            display: block; width: 100%;
+            padding: 16px; border: none; border-radius: 16px;
+            font-size: 1.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: transform 0.1s;
+            margin-bottom: 10px; text-decoration: none; color: white; text-align: center;
+        }
+        .btn-action:active { transform: translateY(4px); border-bottom-width: 0 !important; margin-top: 4px; margin-bottom: 6px; }
+
+        .btn-green { background: var(--btn-green); border-bottom: 5px solid var(--shade-green); }
+        .btn-red { background: var(--btn-red); border-bottom: 5px solid var(--shade-red); }
+        .btn-transparent { background: transparent; color: #999; border: 2px solid transparent; font-size: 1rem; }
+        .btn-transparent:hover { color: var(--text-main); }
+
+        /* Animações */
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0); } }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         
         .feedback { 
@@ -187,12 +241,12 @@
     <div id="main-wrapper">
         <div id="xp-bar-container"><div id="xp-bar-fill"></div></div>
         
-        <!-- Botão Voltar atualizado para a Home da Academy -->
-        <a href="../index.html" id="btn-back" class="nav-btn" aria-label="Voltar para Issa Academy">
+        <!-- Botão Voltar (Link para a Home) -->
+        <a href="../index.html" id="btn-back" class="nav-btn" aria-label="Voltar para Home">
             <i class="fas fa-arrow-left"></i>
         </a>
 
-        <!-- Botão Pause -->
+        <!-- Botão Pause (Com contador) -->
         <button id="btn-pause" class="nav-btn" onclick="togglePause()" aria-label="Pausar Jogo">
             <i class="fas fa-pause"></i>
             <span id="pause-count">3</span>
@@ -223,27 +277,43 @@
 
     <!-- TELA DE INÍCIO -->
     <div id="start-screen" class="overlay">
-        <h1>Mestre da Clave</h1>
-        <p>Comece com <strong>Dó e Ré</strong>.<br>Acerte para subir de nível!</p>
-        <button class="btn-primary" onclick="startGame()">JOGAR</button>
-        <div class="highscore-text">🏆 Seu Recorde: <span id="start-highscore">0</span></div>
+        <div class="modal-card">
+            <div class="fufu-avatar">😺</div>
+            <h1 class="modal-title">Mestre da Clave</h1>
+            <p class="modal-text">Comece com <strong>Dó e Ré</strong>.<br>Acerte e suba de nível!🚀</p>
+            <button class="btn-action btn-green" onclick="startGame()">JOGAR</button>
+            <a href="../index.html" class="btn-action btn-transparent">VOLTAR</a>
+            <div class="highscore-text">🏆 Seu Recorde: <span id="start-highscore">0</span></div>
+        </div>
     </div>
 
     <!-- TELA DE PAUSA -->
     <div id="pause-screen" class="overlay pause-overlay hidden">
-        <h1>JOGO PAUSADO</h1>
-        <p>Pausas restantes: <strong id="pause-msg-count" style="color: #f1c40f;">3</strong></p>
-        <button class="btn-primary" onclick="togglePause()">CONTINUAR</button>
-        <a href="../index.html" class="btn-secondary">Sair para Academy</a>
+        <div class="modal-card">
+            <div class="fufu-avatar">🐱</div>
+            <h1 class="modal-title" style="font-size: 1.5rem;">Pausado</h1>
+            <p class="modal-text">Pausas restantes: <strong id="pause-msg-count" style="color: var(--brand-gold);">3</strong></p>
+            <button class="btn-action btn-green" onclick="togglePause()">CONTINUAR</button>
+            <a href="../index.html" class="btn-action btn-red">SAIR</a>
+        </div>
     </div>
 
     <!-- TELA DE GAME OVER -->
     <div id="game-over-screen" class="overlay hidden">
-        <h1 style="color: #e74c3c;">Fim de Jogo!</h1>
-        <p>Você fez <strong id="final-score" style="color:#fff">0</strong> pontos<br>e chegou no Nível <strong id="final-level" style="color:#f1c40f">1</strong></p>
-        <button class="btn-primary" onclick="resetGame()">Jogar Novamente</button>
-        <a href="../index.html" class="btn-secondary">Sair para Academy</a>
-        <div class="highscore-text">🏆 Recorde Atual: <span id="end-highscore">0</span></div>
+        <div class="modal-card">
+            <div class="fufu-avatar" id="go-fufu">😿</div>
+            <h1 class="modal-title" style="color: var(--btn-red);">Fim de Jogo!</h1>
+            
+            <div style="background: #f7f9fa; border-radius: 12px; padding: 15px; margin-bottom: 20px;">
+                <p style="margin:0; font-size:0.9rem; color:#888;">PONTUAÇÃO</p>
+                <div style="font-size: 2.5rem; font-weight:900; color: var(--brand-blue);" id="final-score">0</div>
+                <div style="font-size: 1rem; color: var(--brand-gold); font-weight:800;">NÍVEL <span id="final-level">1</span></div>
+            </div>
+
+            <button class="btn-action btn-green" onclick="resetGame()">JOGAR NOVAMENTE</button>
+            <a href="../index.html" class="btn-action btn-red">SAIR PARA ACADEMY</a>
+            <div class="highscore-text">🏆 Recorde Atual: <span id="end-highscore">0</span></div>
+        </div>
     </div>
 
     <script>
@@ -372,9 +442,10 @@
         let highScore = localStorage.getItem('mestreClave_record') || 0;
         document.getElementById('start-highscore').innerText = highScore;
 
+        // Atualizado Si para Rosa (#e84393)
         const noteColors = { 
-            'Dó':'#e74c3c', 'Ré':'#e67e22', 'Mi':'#b7950b', 
-            'Fá':'#2ecc71', 'Sol':'#3498db', 'Lá':'#9b59b6', 'Si':'#00d2d3' 
+            'Dó':'#e74c3c', 'Ré':'#e67e22', 'Mi':'#f1c40f', 
+            'Fá':'#2ecc71', 'Sol':'#3498db', 'Lá':'#9b59b6', 'Si':'#e84393' 
         };
 
         function enterFullScreen() { const el = document.documentElement; if(el.requestFullscreen) el.requestFullscreen().catch(()=>{}); }
@@ -606,6 +677,10 @@
             if (score > highScore) { highScore = score; localStorage.setItem('mestreClave_record', highScore); }
             document.getElementById('final-score').innerText = score; document.getElementById('final-level').innerText = currentLevel;
             document.getElementById('end-highscore').innerText = highScore; document.getElementById('start-highscore').innerText = highScore;
+            
+            const goFufu = document.getElementById('go-fufu');
+            goFufu.innerText = score > 100 ? '😺' : '🙀';
+            
             document.getElementById('game-over-screen').classList.remove('hidden'); 
         }
         function resetGame() { startGame(); }
