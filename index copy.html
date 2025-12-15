@@ -140,12 +140,10 @@
         
         /* Ajuste da imagem do mascote nas boas-vindas */
         .mascot-img {
-            /* Tamanho aumentado para compensar a "magreza" da batuta e pose */
-            width: 130px; 
-            height: auto; 
+            width: 80px; 
+            height: 80px; /* Definido explicitamente para evitar CLS */
             animation: float 3s infinite ease-in-out;
-            /* Saturação extra para dar destaque visual */
-            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)) saturate(1.1);
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
             object-fit: contain; /* Garante que não distorça */
         }
         
@@ -181,16 +179,13 @@
         .app-card:active { transform: scale(0.98); background: #f0f0f0; }
 
         .card-icon {
-            /* Aumentado conforme Sugestão 2 (Pop-out Effect base) */
-            width: 80px; height: 80px; flex-shrink: 0;
+            width: 70px; height: 70px; flex-shrink: 0;
             border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             font-size: 1.8rem; color: white;
             box-shadow: 0 4px 0 rgba(0,0,0,0.1);
-            overflow: visible; /* Permite overflow para efeito Pop-out */
-            padding: 5px; 
-            position: relative; 
-            z-index: 10; /* Garante que fique acima de outros elementos se vazar */
+            overflow: hidden; /* Garante que a imagem respeite a borda */
+            padding: 5px; /* Pequeno respiro para a imagem */
         }
         
         /* Imagem dentro do card */
@@ -199,9 +194,6 @@
             height: 100%;
             object-fit: contain;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-            /* Escala MUITO AUMENTADA para 1.45 e deslocada para cima */
-            /* Isso garante que as orelhas vazem do quadrado */
-            transform: scale(1.45) translateY(-8px); 
         }
 
         .card-info { flex: 1; }
@@ -221,21 +213,6 @@
             background: var(--color-green); color: white;
             font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 10px;
             text-transform: uppercase; margin-left: 8px; vertical-align: middle;
-        }
-
-        /* SEO Content (Texto rico em keywords, visualmente discreto) */
-        .seo-content {
-            text-align: center;
-            padding: 10px 20px;
-            margin-bottom: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .seo-content p {
-            font-size: 0.9rem;
-            color: #ccc; /* Cor clara para não chamar atenção visual, mas legível */
-            line-height: 1.5;
-            font-weight: 600;
         }
 
         footer { 
@@ -261,25 +238,6 @@
         }
 
         @keyframes float { 0% { transform: translateY(0); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
-
-        /* Sugestão 4: Layout Vertical no Mobile (CORRIGIDO PARA 600px) */
-        @media (max-width: 600px) {
-            .welcome-section {
-                flex-direction: column;
-                text-align: center;
-                gap: 15px;
-                padding-top: 30px;
-            }
-            
-            .mascot-img {
-                width: 160px; /* Fufu "Hero" SUPER NO MOBILE para compensar */
-                margin-bottom: 5px;
-            }
-
-            .welcome-text h2 {
-                font-size: 1.6rem; /* Título um pouco maior no mobile */
-            }
-        }
     </style>
 </head>
 <body>
@@ -299,7 +257,7 @@
     <!-- BOAS VINDAS -->
     <div class="welcome-section">
         <!-- Fufu (Imagem PNG substituindo Emoji) -->
-        <img src="assets/fufu-capa-home-pagge.png" alt="Mascote Fufu da Issa Academy ensinando música" class="mascot-img" width="130" height="130">
+        <img src="assets/fufu-capa-home-pagge.png" alt="Mascote Fufu da Issa Academy ensinando música" class="mascot-img" width="80" height="80">
         <div class="welcome-text">
             <h2>Olá! Eu sou o Fufu!</h2>
             <p>O que vamos aprender hoje?</p>
@@ -310,13 +268,10 @@
     <main>
         
         <!-- CARD 1: MESTRE DA CLAVE -->
-        <a href="mestre-da-clave/" class="app-card card-blue" 
-           onclick="gtag('event', 'select_content', {'content_type': 'game', 'item_id': 'mestre_da_clave'});"
-           title="Jogar Mestre da Clave: Treino de leitura de notas na pauta"
-           aria-label="Acessar jogo Mestre da Clave">
+        <a href="mestre-da-clave/" class="app-card card-blue" onclick="gtag('event', 'select_content', {'content_type': 'game', 'item_id': 'mestre_da_clave'});">
             <!-- Ícone Personalizado do Fufu -->
             <div class="card-icon">
-                <img src="assets/fufu-capa-mestre-da-clave.png" alt="Mestre da Clave: Jogo de leitura de notas musicais" width="80" height="80">
+                <img src="assets/fufu-capa-mestre-da-clave.png" alt="Mestre da Clave: Jogo de leitura de notas musicais">
             </div>
             <div class="card-info">
                 <div class="card-title">Mestre da Clave</div>
@@ -326,13 +281,10 @@
         </a>
 
         <!-- CARD 2: SIMULADO MSA -->
-        <a href="simulado-msa/" class="app-card card-green" 
-           onclick="gtag('event', 'select_content', {'content_type': 'quiz', 'item_id': 'simulado_msa'});"
-           title="Fazer Simulado MSA: Questões de teoria musical para oficialização"
-           aria-label="Acessar Simulado MSA">
+        <a href="simulado-msa/" class="app-card card-green" onclick="gtag('event', 'select_content', {'content_type': 'quiz', 'item_id': 'simulado_msa'});">
             <!-- Ícone Personalizado do Fufu -->
             <div class="card-icon">
-                <img src="assets/fufu-capa-simulado.png" alt="Simulado MSA CCB: Teste de oficialização" width="80" height="80">
+                <img src="assets/fufu-capa-simulado.png" alt="Simulado MSA CCB: Teste de oficialização">
             </div>
             <div class="card-info">
                 <div class="card-title">Simulado MSA <span class="badge-new">NOVO</span></div>
@@ -342,7 +294,7 @@
         </a>
 
         <!-- CARD 3: AULAS (BLOQUEADO) -->
-        <div class="app-card card-locked" aria-hidden="true">
+        <div class="app-card card-locked">
             <div class="card-icon"><i class="fas fa-video"></i></div>
             <div class="card-info">
                 <div class="card-title">Aulas & Técnica</div>
@@ -353,17 +305,12 @@
 
     </main>
 
-    <!-- SEO CONTENT (Sugestão 1: Texto Rico em Keywords) -->
-    <section class="seo-content">
-        <p>Plataforma de ensino musical 100% gratuita, desenvolvida para auxiliar candidatos a músicos e organistas da CCB. Prepare-se para o Teste de Oficialização com nosso Simulado MSA completo, jogos de leitura rítmica e solfejo.</p>
-    </section>
-
     <footer>
         Feito com ❤️ por Issacar Barbosa - Brasil 🇧🇷
         <div class="social-links">
-            <a href="https://www.instagram.com/issacarbarbosa" target="_blank" class="social-link" title="Instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com/issacarbarbosa" target="_blank" class="social-link" title="Facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.youtube.com/@issacarbarbosa" target="_blank" class="social-link" title="YouTube" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+            <a href="https://www.instagram.com/issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.youtube.com/@issacarbarbosa" target="_blank" class="social-link"><i class="fab fa-youtube"></i></a>
         </div>
     </footer>
 
